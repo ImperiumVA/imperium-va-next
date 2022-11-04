@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap');
+@import "~bootswatch/dist/darkly/variables";
+@import "~bootstrap/scss/bootstrap";
+@import "~bootswatch/dist/darkly/bootswatch";
+
+html,
+body {
+  font-family: 'Cinzel', serif;
+}
