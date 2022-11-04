@@ -66,7 +66,7 @@ export default function Header({ menus: { mainMenu, adminMenu }, }) {
         <Nav className='justify-content-end'>
             {(session && session.user)
                 ? (<>
-                    <NavDropdown title={<Image src={profileImage} roundedCircle width={30} height={30} />} id="basic-nav-dropdown">
+                    <NavDropdown title={<Image src={profileImage} roundedCircle width={30} height={30} alt='Profile Photo' />} id="basic-nav-dropdown">
                         <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
                         <NavDropdown.Divider />
                         <NavDropdown.Item onClick={doSignOut}>Sign Out</NavDropdown.Item>
