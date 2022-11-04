@@ -1,5 +1,5 @@
 import { useState, } from 'react'
-// import { signIn, signOut, useSession } from "next-auth/react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { Navbar, Container, Nav, NavDropdown, Image } from "react-bootstrap"
 
 // The approach used in this component shows how to build a sign in and sign out
@@ -44,16 +44,16 @@ export default function Header() {
 
   const doSignOut = (e) => {
     e.preventDefault()
-    // signOut()
+    signOut()
   }
 
   const doSignIn = (e) => {
     e.preventDefault()
-    // signIn()
+    signIn()
   }
 
-  // const { data: session, status } = useSession()
-  // const profileImage = session?.user?.image || '/ProfilePhoto.jpg'
+  const { data: session, status } = useSession()
+  const profileImage = session?.user?.image || '/ProfilePhoto.jpg'
 
   return (<Navbar bg={color} variant={color} expand="lg" className='mb-3'>
     <Container>
@@ -73,7 +73,18 @@ export default function Header() {
           {Menu.map((item, i) => (<Nav.Link key={i} href={item.href}>{item.name}</Nav.Link>))}
         </Nav>
         <Nav className='justify-content-end'>
+          {(session && session.user)
+          ? (
+            <NavDropdown title={<Image src={profileImage} roundedCircle width={30} height={30} />} id="basic-nav-dropdown">
+              <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
+              <NavDropdown.Divider />
+              <NavDropdown.Item href="#" onClick={doSignOut}>Sign Out</NavDropdown.Item>
+            </NavDropdown>
+          )
+          : (
             <Nav.Link href={`/api/auth/signin`} onClick={(e) => {doSignIn}}>Sign in</Nav.Link>
+            )
+          }  
         </Nav>
         
       </Navbar.Collapse>
