@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model DiscordAccount {
+    id             Int            @id @default(autoincrement())
+    discordId      String         @unique
+    username       String
+    discriminator  String
+    email          String
+    locale         String
+    verified       Boolean
+    isAdmin        Boolean        @default(false)
+    lastLogin      DateTime?
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    onAirCompanies OnAirCompany[]
+}
+
+model OnAirCompany {
+    id                                 Int       @id @default(autoincrement())
+    name                               String
+    companyId                          String    @unique
+    companyApiKey                      String?
+    airlineCode                        String    @unique
+    lastConnection                     DateTime
+    lastReportDate                     DateTime
+    reputation                         Float
+    creationDate                       DateTime
+    difficultyLevel                    Int
+    uTCOffsetinHours                   Int
+    paused                             Boolean
+    pausedDate                         DateTime?
+    level                              Int
+    levelXP                            Int
+    transportEmployeeInstant           Boolean
+    transportPlayerInstant             Boolean
+    forceTimeInSimulator               Boolean
+    useSmallAirports                   Boolean
+    useOnlyVanillaAirports             Boolean
+    enableSkillTree                    Boolean
+    checkrideLevel                     Int
+    enableLandingPenalities            Boolean
+    enableEmployeesFlightDutyAndSleep  Boolean
+    aircraftRentLevel                  Int
+    enableCargosAndChartersLoadingTime Boolean
+    inSurvival                         Boolean
+    payBonusFactor                     Int
+    enableSimFailures                  Boolean
+    disableSeatsConfigCheck            Boolean
+    realisticSimProcedures             Boolean
+    travelTokens                       Int
+    currentBadgeId                     String?
+    currentBadgeUrl                    String?
+    currentBadgeName                   String?
+    lastWeeklyManagementsPaymentDate   DateTime?
+
+    onAirSyncedAt DateTime?
+    ownerId       Int
+    owner         DiscordAccount @relation(fields: [ownerId], references: [id])
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+}
+
+model Menu {
+    id             Int      @id @default(autoincrement())
+    slug           String   @unique
+    name           String
+    order          Int      @default(autoincrement())
+    isAuthRequired Boolean  @default(false)
+    adminOnly      Boolean  @default(false)
+    isDisabled     Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+
+    items MenuItem[]
+}
+
+model MenuItem {
+    id       Int     @id @default(autoincrement())
+    slug     String  @unique
+    name     String
+    href     String
+    label    String?
+    icon     String?
+    order    Int     @default(autoincrement())
+    parentId Int
+
+    isExternal     Boolean  @default(false)
+    isDisabled     Boolean  @default(false)
+    isAuthRequired Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+
+    parent Menu @relation(fields: [parentId], references: [id])
+}

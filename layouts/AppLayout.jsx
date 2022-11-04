@@ -2,12 +2,12 @@ import Header from 'components/Header'
 import { Container, Row, Col, } from 'react-bootstrap'
 
 function AppLayout(props) {
-    const { heading, children } = props
+    const { heading, menus, children } = props
     const wrapChildren = (props.wrapChildren) ? props.wrapChildren : true;
 
     return (
-        <>
-            <Header />
+        <div id="AppLayout" className="layout">
+            <Header menus={menus} />
             {(heading && typeof heading === 'string')
                 ? (
                     <Container>
@@ -25,7 +25,7 @@ function AppLayout(props) {
                 </Container>)
                 : children
             }
-        </>
+        </div>
     );
 }
 
