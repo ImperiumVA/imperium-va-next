@@ -9,7 +9,7 @@
           "styles/*": ["styles/*"],
           "layouts": ["layouts/*"],
           "services": ["services/*"],
-          "reducers": ["reducers/*"],
+          "reducers": ["reducers/reducer.js", "reducers/*"],
           "helpers": ["helpers/*"],
           "repos": ["repos/*"]
         },

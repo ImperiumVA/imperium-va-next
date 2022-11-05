@@ -3,9 +3,9 @@ import Router from 'next/router';
 import { fetchWrapper } from 'helpers';
 
 const { publicRuntimeConfig } = getConfig();
-const baseUrl = `${publicRuntimeConfig.apiUrl}/account`;
+const baseUrl = `${publicRuntimeConfig.apiUrl}/menus`;
 
-export const AccountService = {
+export const MenuService = {
     getById,
     getAll,
     findOne: getById,
@@ -13,7 +13,7 @@ export const AccountService = {
     update,
     destroy,
     delete: destroy,
-    toggleField,
+    toggleField: toggleField,
 };
 
 async function getAll() {
@@ -39,5 +39,5 @@ async function toggleField(id, key) {
     if (!id) throw new Error('id is required');
     if (!key) throw new Error('key is required');
     
-    return await fetchWrapper.put(`${baseUrl}/toggleField`, {id, key});
+    return await fetchWrapper.put(`${baseUrl}/toggleField/${id}`, {key});
 }

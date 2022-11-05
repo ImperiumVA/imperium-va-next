@@ -19,6 +19,7 @@ model DiscordAccount {
     locale         String
     verified       Boolean
     isAdmin        Boolean        @default(false)
+    isEnabled      Boolean?       @default(false)
     lastLogin      DateTime?
     createdAt      DateTime       @default(now())
     updatedAt      DateTime       @updatedAt

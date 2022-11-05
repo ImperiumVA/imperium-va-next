@@ -3,19 +3,9 @@ import moment from 'moment'
 
 function _humanize(date) {
     if (!date) throw new Error('Date is required');
-    const now = moment();
-    const then = moment(date);
-    const diff = now.diff(then, 'days');
+    const humanized = moment(date).fromNow();
 
-    if (diff < 1) {
-        return 'Today';
-    }
-
-    if (diff < 2) {
-        return 'Yesterday';
-    }
-
-    return then.format('MMMM Do YYYY');
+    return humanized.toString();
 }
 
 export class BaseRepo {
@@ -27,6 +17,7 @@ export class BaseRepo {
         
         this.Model = this.prisma[model];
         this.create = this.create.bind(this);
+        this.update = this.update.bind(this);
         this.findAll = this.findAll.bind(this);
         this.findById = this.findById.bind(this);
         this.destroy = this.destroy.bind(this);
@@ -46,77 +37,139 @@ export class BaseRepo {
         if (!keys) throw new Error('Keys are required');
 
         if (!Array.isArray(keys)) throw new Error('Keys must be an array');
-
-        keys.forEach((h) => {
-            Object.keys(x).forEach((key) => {
-                if (key === h) {
+        // if Users is an array
+        if (Array.isArray(x)) {
+            x.forEach((y) => {
+                // loop through keys
+                keys.forEach((key) => {
+                    // if key exists on y
+                    if (y[key]) {
+                        // humanize it
+                        y[`humanized_${key}`] = _humanize(y[key]);
+                    }
+                });
+            });
+        } else {
+            // loop through keys
+            keys.forEach((key) => {
+                // if key exists on user
+                if (x[key]) {
+                    // humanize it
                     x[`humanized_${key}`] = _humanize(x[key]);
                 }
             });
-        });
-
+        }
+        
         return x;
     };
 
-    omit(x, keys) {
-        if (!x) throw new Error('Record is required');
+    omit(_x, keys) {
+        if (!_x) throw new Error('Record is required');
         if (!keys) throw new Error('Keys are required');
+        const X = JSON.parse(JSON.stringify(_x));
 
-        const obj = { ...x };
-        keys.forEach((key) => delete obj[key]);
-        return obj;
+        if (Array.isArray(X)) {
+            X.forEach((x) => {
+                keys.forEach((key) => {
+                    delete x[key];
+                });
+            });
+        } else {
+            keys.forEach((key) => {
+                delete X[key];
+            });
+        }
+
+        return X;
     }
 
     async create(newX, opts) {
+        const self = this;
         if (!newX) throw new Error('New Record is required');
 
-        return await this.Model.create({
+        const query = {
             data: newX,
-        }).then((x) => opts?.serialize ? this.serialize(x) : x);
+            orderBy: {
+                order: (opts?.orderBy) ? opts.orderBy : 'asc',
+            },
+            include: (opts?.include) ? opts.include : undefined,
+        }
+
+        return await this.Model.create(query)
+            .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
+            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
     }
 
-    async findAll(opts) {
-        const query = {}
+    async update(id, x, opts) {
+        const self = this;
+        if (!x) throw new Error('New Record is required');
+
+        const query = {
+            where: {
+                id: (typeof id !== 'number') ? Number(id) : id,
+            },
+            data: x,
+        }
 
         if (opts?.include) {
             query.include = opts.include;
         }
 
+        return await this.Model.update(query)
+            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+    }
+
+    async findAll(opts) {
+        const self = this;
+
+        const query = {
+            where: {},
+            orderBy: (opts?.orderBy) ? opts.orderBy : undefined,
+            include: (opts?.include) ? opts.include : undefined,
+        }
+
         return this.Model.findMany(query)
-            .then((x) => opts?.humanize ? this.humanize(x, opts.humanize) : x)
-            .then((x) => opts?.serialize ? this.serialize(x) : x);
+            .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
+            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
     }
 
     async findById(id, opts) {
+        const self = this;
         if  (!id) throw new Error('Id is required');
         
         const query = {
             where: {
                 id: (typeof id !== 'number') ? Number(id) : id,
             },
-        }
-
-        if (opts?.include) {
-            query.include = opts.include;
+            orderBy: (opts?.orderBy) ? opts.orderBy : undefined,
+            include: (opts?.include) ? opts.include : undefined,
         }
 
         return this.Model.findUnique(query)
-            .then((x) => (x && opts?.humanize) ? this.humanize(x, opts.humanize) : x)
-            .then((x) => (x && opts?.serialize) ? this.serialize(x) : x);
+            .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
+            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
     }
 
     async destroy(id, opts) {
+        const self = this;
         if (!id) throw new Error('Id is required');
 
         const query = {
             where: {
                 id: (typeof id !== 'number') ? Number(id) : id,
             },
+            orderBy: (opts?.orderBy) ? opts.orderBy : undefined,
+            include: (opts?.include) ? opts.include : undefined,
         }
 
         return await this.Model.delete(query)
-            .then((x) => (x && opts?.humanize) ? this.humanize(x, opts.humanize) : x)
-            .then((x) => (x && opts?.serialize) ? this.serialize(x) : x);;
+            .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
+            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
     }
 }
 

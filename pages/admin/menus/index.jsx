@@ -1,59 +1,51 @@
 import { useState, useEffect, useReducer, } from 'react';
 import AppLayout from 'layouts/AppLayout'
 import { Row, Col, } from 'react-bootstrap'
-import { MenuRepo, DiscordAccountRepo, } from 'repos'
-import UsersTable from 'components/UsersTable'
+import MenuRepo from 'repos/MenuRepo'
 import Reducer from 'reducers';
-import { AccountService } from 'services'
+import { MenuService } from 'services'
+import MenusTable from 'components/MenusTable'
 
-export async function getServerSideProps(ctx) {
+export async function getServerSideProps() {
     const menus = await MenuRepo.findAll({
         serialize: true,
+        humanize: ['createdAt', 'updatedAt'],
         include: {
             items: true,
         },
     });
 
-    const users = await DiscordAccountRepo.findAll({
-        serialize: true,
-        humanize: ['lastLogin', 'createdAt', 'updatedAt'],
-    });
-
     return {
         props: {
-            menus: {
-                mainMenu: menus.filter((x) => x.slug === 'main-menu')[0],
-                adminMenu: menus.filter((x) => x.slug === 'admin-menu')[0],
-            },
-            users: users,
+            menus: menus,
         }
     }
 }
 
-function UsersList({ users, menus }) {
-    const [state, dispatch] = useReducer(Reducer, users);
-
+function MenusList({ menus, }) {
+    const [state, dispatch] = useReducer(Reducer, menus);
+    
     const doDelete = async (id) => {
-        const x = await AccountService.delete(id);
+        const x = await MenuService.delete(id);
         dispatch({ type: 'delete', payload: id });
 
         return x;
     }
 
-
+    
     const toggleField = async(key, id) => {
-        const x = await AccountService.toggleField(id, key);
+        const x = await MenuService.toggleField(id, key);
         dispatch({ type: 'update', payload: x });
     }
 
     return (
         <AppLayout
             menus={menus}
-            heading='Users List'
+            heading='Menus'
         >
             <Row>
                 <Col>
-                    <UsersTable
+                    <MenusTable
                         data={state}
                         onDelete={doDelete}
                         toggleField={toggleField}
@@ -64,4 +56,4 @@ function UsersList({ users, menus }) {
     );
 }
 
-export default UsersList;
+export default MenusList;

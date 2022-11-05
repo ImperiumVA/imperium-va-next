@@ -1,5 +1,5 @@
 import { apiHandler, omit } from 'helpers/api'
-import DiscordAccountRepo from 'repos/DiscordAccountRepo'
+import { DiscordAccountRepo, } from 'repos'
 
 export default apiHandler({
     put: Update,

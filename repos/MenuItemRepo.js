@@ -1,19 +1,16 @@
 import BaseRepo from './BaseRepo'
 
-class DiscordAccountRepo extends BaseRepo {
+class MenuItem extends BaseRepo {
     constructor() {
-        super('discordAccount')
-        this.findByDiscordId = this.findByDiscordId.bind(this)
+        super('menuItem')
+        this.findBySlug = this.findBySlug.bind(this)
         this.toggleField = this.toggleField.bind(this)
     }
-
-    async findByDiscordId(discordId, opts) {
-        const self = this;
-        if (!discordId) throw new Error('Discord ID is required');
-
+    
+    async findBySlug(slug, opts) {
         const query = {
             where: {
-                discordId,
+                slug,
             },
         }
 
@@ -21,9 +18,7 @@ class DiscordAccountRepo extends BaseRepo {
             query.include = opts.include;
         }
 
-        return this.Model.findUnique(query)
-            .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+        return this.Model.findUnique(query).then((x) => (x && opts?.serialize) ? this.serialize(x) : x);
     }
 
     async toggleField(id, fieldKey, opts) {
@@ -40,4 +35,4 @@ class DiscordAccountRepo extends BaseRepo {
     }
 }
 
-export default new DiscordAccountRepo();
+export default new MenuItem();

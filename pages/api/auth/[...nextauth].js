@@ -1,6 +1,7 @@
 import prisma from "db"
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
+import { DiscordAccountRepo, } from "repos"
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -32,32 +33,28 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
+        let discordAccount = await DiscordAccountRepo.findByDiscordId(profile.id, { serialize: true, });
+        if (!discordAccount) {
+            discordAccount = await DiscordAccountRepo.create({
+                discordId: profile.id,
+                username: profile.username,
+                discriminator: profile.discriminator,
+                email: profile.email,
+                verified: profile.verified,
+                locale: profile.locale,
+                lastLogin: new Date(),
+            }, { serialize: true, });
+        } else {
+            discordAccount.lastLogin = new Date();
+            discordAccount = await DiscordAccountRepo.update(discordAccount.id, discordAccount, { serialize: true, });
+        }
 
-      const discordAccount = await prisma.discordAccount.upsert({
-        where: {
-          discordId: profile.id,
-        },
-        update: {
-            username: profile.username,
-            email: profile.email,
-            verified: profile.verified,
-            locale: profile.locale,
-            lastLogin: new Date(),
-        },
-        create: {
-            discordId: profile.id,
-            username: profile.username,
-            discriminator: profile.discriminator,
-            email: profile.email,
-            verified: profile.verified,
-            locale: profile.locale,
-            lastLogin: new Date(),
-        },
-      });
-
-      user.discordAccount = discordAccount;
-      
-      return true
+        if (discordAccount.isEnabled === true) {
+            user.discordAccount = discordAccount;
+            return true;
+        } else {
+            return false;
+        }
     },
 
     async jwt({ token, account }) {
@@ -74,19 +71,14 @@ export const authOptions = {
         session.accessToken = token.accessToken
         const discordId = token.sub
 
-        const query = {
-            where: {
-                discordId: discordId,
-            },
-        }
-
-        const discordAccount = await prisma.discordAccount.findUnique(query);
+        const discordAccount = await DiscordAccountRepo.findByDiscordId(discordId, { serialize: true, });
         
         if (!discordAccount) {
             return false;
+        } else if (discordAccount.isEnabled !== true) {
+            return false;
         }
 
-        
         session.user.isAdmin = discordAccount.isAdmin;
         session.user.accountId = discordAccount.id;
         

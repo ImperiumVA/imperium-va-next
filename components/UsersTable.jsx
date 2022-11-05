@@ -5,32 +5,9 @@ import {
     Button,
     ButtonGroup,
 } from 'react-bootstrap'
-import { FaTrash } from 'react-icons/fa';
+import DeleteButton from 'components/DeleteButton'
 
-function DeleteButton ({ onClick, id }) {
-    const [isDeleting, setIsDeleting] = useState(false)
-
-    const _onClick = async (e) => {
-        e.preventDefault()
-        setIsDeleting(true)
-        await onClick(id)
-        setIsDeleting(false)
-    }
-
-    return (<Button
-        size='md'
-        variant='danger'
-        onClick={_onClick}
-        disabled={isDeleting}
-    >
-        {(isDeleting) 
-         ? 'Deleting...'
-         : (<FaTrash />)
-        }
-    </Button>)
-}
-
-function UsersTable({ data, onDelete, ...props }) {
+function UsersTable({ data, onDelete, toggleField, ...props }) {
     const columns = [
         {
             name: 'Username',
@@ -52,17 +29,32 @@ function UsersTable({ data, onDelete, ...props }) {
         {
             name: 'Last Login',
             cell: (row) => (<span>
-                {row.lastLogin}
+                {row.humanized_lastLogin}
             </span>),
         },
         {
+            name: 'First Login',
+            cell: (row) => (<span>
+                {row.humanized_createdAt}
+            </span>),
+        },
+        {
+            name: 'Is Enabled?',
+            cell: ({ isEnabled, id, }) => (
+            <Badge
+                style={{
+                    cursor: 'pointer',
+                }}
+                onClick={(e) => toggleField('isEnabled', id)} bg={(!isEnabled) ? 'danger' : 'success'}
+            >
+                {(isEnabled) ? 'Yes' : 'No'}
+            </Badge>),
+        },
+        {
             name: 'actions',
-            style: {
-                textAlign: 'center',
-            },
-            cell: (row) => (<div className='text-center'><ButtonGroup>
+            cell: (row) => (<ButtonGroup>
                 <DeleteButton id={row.id} onClick={onDelete} />
-            </ButtonGroup></div>)
+            </ButtonGroup>)
         }
     ]
 
