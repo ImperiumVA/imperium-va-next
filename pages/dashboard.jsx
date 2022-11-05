@@ -27,14 +27,23 @@ export async function getServerSideProps(ctx) {
 export default function Dashboard({ menus }) {
     const router = useRouter()
 
-    const emitAlert = (e) => {
+    const emitDismissableAlert = (e) => {
         e.preventDefault()
         
-        AlertService.success('This is a test alert',{
-            heading: 'Test Alert',
-            type: AlertType.info,
-            dismissable: true,
+        AlertService.notice('This is the dismissable test notice message body', {
+            heading: 'dismissable Test Notice',
             autoClose: false,
+            dismissible: true,
+        })
+    }
+
+    const emitNonDismissableAlert = (e) => {
+        e.preventDefault()
+        
+        AlertService.notice('This is the non-dismissable test notice message body', {
+            heading: 'non-dismissable Test Notice',
+            autoClose: false,
+            dismissible: false,
         })
     }
 
@@ -47,7 +56,8 @@ export default function Dashboard({ menus }) {
                 <p>
                     Cool stuff like stats, graphs and stuff will eventually go here
                 </p>
-                <Button variant='primary' onClick={emitAlert}>Emit Alert</Button>
+                <Button variant='primary' onClick={emitDismissableAlert}>Emit Dismissable Alert</Button><br/><br/>
+                <Button variant='primary' onClick={emitNonDismissableAlert}>Emit Non-Dismissable Alert</Button>
             </div>
         </AppLayout>
     )

@@ -3,17 +3,61 @@ import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { AlertService, AlertType } from 'services';
 import classNames from 'classnames';
-import { Alert } from 'react-bootstrap';
+import { Alert as BSAlert, Button, } from 'react-bootstrap';
 
-Alerts.propTypes = {
+Alert.propTypes = {
     id: PropTypes.string,
     fade: PropTypes.bool
 };
 
-Alerts.defaultProps = {
+Alert.defaultProps = {
     id: 'default-alert',
     fade: true
 };
+
+function Alert({ dismissable, type, heading, message, id, fade, autoClose, ...props }) {
+    const [show, setShow] = useState(true);
+
+    const variant = classNames({
+        'danger': (type === AlertType.Error),
+        'success': (type === AlertType.Success),
+        'info': (type === AlertType.Info),
+        'warning': (type === AlertType.Warning),
+        'dark': (type === AlertType.Notice),
+    })
+
+    return (dismissable === true) ? (
+        <BSAlert show={show} variant={variant} onClose={() => setShow(false)} dismissible>
+            {(heading)
+                ? (<BSAlert.Heading>
+                    {heading}
+                </BSAlert.Heading>)
+                : null
+            }
+            <p>
+                {message}
+            </p>
+            <hr />
+            <div className="d-flex justify-content-end">
+                <Button onClick={() => setShow(false)} variant="secondary">
+                    Close me y'all!
+                </Button>
+            </div>
+        </BSAlert>
+    ) : (
+        <BSAlert variant={variant}>
+            {(heading)
+                ? (<BSAlert.Heading>
+                    {heading}
+                </BSAlert.Heading>)
+                : null
+            }
+            <p>
+                {message}
+            </p>
+        </BSAlert>
+    )
+}
 
 export default function Alerts({ id, fade }) {
     const router = useRouter();
@@ -79,26 +123,7 @@ export default function Alerts({ id, fade }) {
 
     if (!alerts.length) return null;
 
-    return alerts.map((alert, index) => {
-        const alertVariant = classNames({
-            'danger': (alert.type === AlertType.Error),
-            'success': (alert.type === AlertType.Success),
-            'info': (alert.type === AlertType.Info),
-            'warning': (alert.type === AlertType.Warning)
-        })
-
-        const dismissable = (alert.type === AlertType.Error) ? false : alert.dismissable || true;
-
-        return (
-            <Alert key={index} variant={alertVariant} dismissable={dismissable}>
-                {(alert.heading)
-                    ? (<Alert.Heading>
-                        {alert.heading}
-                    </Alert.Heading>)
-                    : null
-                }
-                {alert.message}
-            </Alert>
-        )
-    });
+    return (<div id='AlertsContainer'>
+        {alerts.map((alert, k) =>(<Alert key={k} {...alert} />))}
+    </div>)
 }

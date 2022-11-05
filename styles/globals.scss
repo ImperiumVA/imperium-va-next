@@ -11,3 +11,21 @@ body {
 #HomeLayout #Logo {
     margin-top: 50%;
 }
+
+#AlertsContainer {
+    float: right;
+    z-index: 1000;
+    margin-right: 25px;
+    position: absolute;
+    right: 0;
+}
+
+.form-floating > label {
+    color: white;
+}
+
+.form-floating > input.form-control,
+.form-floating > input.form-control:disabled {
+    background-color: #333333;
+    color: white;
+}

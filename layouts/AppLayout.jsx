@@ -1,5 +1,4 @@
 import Header from 'components/Header'
-import Alerts from 'components/Alert'
 import { Container, Row, Col, } from 'react-bootstrap'
 
 function AppLayout(props) {
@@ -9,7 +8,6 @@ function AppLayout(props) {
     return (
         <div id="AppLayout" className="layout">
             <Header menus={menus} />
-            <Alerts />
             {(heading && typeof heading === 'string')
                 ? (
                     <Container>

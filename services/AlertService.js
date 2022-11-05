@@ -7,15 +7,17 @@ export const AlertService = {
     error,
     info,
     warn,
+    notice,
     alert,
-    clear
+    clear,
 };
 
 export const AlertType = {
     Success: 'Success',
     Error: 'Error',
     Info: 'Info',
-    Warning: 'Warning'
+    Warning: 'Warning',
+    Notice: 'Notice',
 };
 
 const alertSubject = new Subject();
@@ -41,6 +43,10 @@ function info(message, options) {
 
 function warn(message, options) {
     alert({ ...options, type: AlertType.Warning, message });
+}
+
+function notice(message, options) {
+    alert({ ...options, type: AlertType.Notice, message });
 }
 
 // core alert method

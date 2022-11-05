@@ -2,6 +2,7 @@ import prisma from "db"
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
 import { AccountRepo, } from "repos"
+import { AlertService, AlertType } from "services"
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -33,8 +34,10 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
+        let result = false;
         let Account = await AccountRepo.findByDiscordId(profile.id, { serialize: true, });
-
+        let successAlertMsg = '';
+        
         if (!Account) {
             Account = await AccountRepo.create({
                 discordId: profile.id,
@@ -44,16 +47,23 @@ export const authOptions = {
                 verified: profile.verified,
                 locale: profile.locale,
                 lastLogin: new Date(),
-            }, { serialize: true, });
+            }, { serialize: true, });         
+    
+            result = false;
+        } else {
+            if (Account.isEnabled !== true) return false;
+    
+            Account.lastLogin = new Date();
+            Account = await AccountRepo.update(Account.id, Account, { serialize: true, });
+            user.Account = Account;
+    
+ 
+
+            result = true
         }
-
-        if (Account.isEnabled !== true) return false;
-
-        Account.lastLogin = new Date();
-        Account = await AccountRepo.update(Account.id, Account, { serialize: true, });
-        user.Account = Account;
         
-        return true;
+        return result
+
     },
 
     async jwt({ token, account }) {
