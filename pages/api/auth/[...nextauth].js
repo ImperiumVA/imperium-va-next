@@ -33,17 +33,21 @@ export const authOptions = {
     ],
     callbacks: {
         async signIn({user, account, profile }) {
-            const Account = await AccountRepo.findByDiscordId(user.id);
+            let Account = await AccountRepo.findByDiscordId(user.id);
 
             if (Account) {
                 if (Account.isEnabled) {
                     user.account = Account;
+                    user.accountId = Account.id;
+                    user.isAdmin = Account.isAdmin;
+                    user.image_url = profile.image_url;
+
                     return true;
                 } else {
                     return '/account-disabled';
                 }
             } else {
-                user.account = await AccountRepo.create({
+                Account = await AccountRepo.create({
                     discordId: profile.id,
                     username: profile.username,
                     discriminator: profile.discriminator,
@@ -53,17 +57,24 @@ export const authOptions = {
                     isAdmin: false,
                     isEnabled: false
                 });
-
-                user.image_url = profile.image_url;
-
-
-                return false;
             }
+
+            return false;
+        
         },
         async session({ session, token }) {
             session.accessToken = token.accessToken;
+            session.user.id = token.sub;
 
-            // session.account = user.account;
+            const Account = await AccountRepo.findByDiscordId(session.user.id);
+            console.log('Session() Account:', Account);
+
+            if (Account) {
+                session.user.accountId = Account.id;
+                session.user.isAdmin = Account.isAdmin;
+            }
+
+            console.log('Session() session:', session);
             return session;
         },
         async jwt({ token, account }) {
