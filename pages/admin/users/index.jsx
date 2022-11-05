@@ -1,7 +1,7 @@
 import { useState, useEffect, useReducer, } from 'react';
 import AppLayout from 'layouts/AppLayout'
 import { Row, Col, } from 'react-bootstrap'
-import { MenuRepo, DiscordAccountRepo, } from 'repos'
+import { MenuRepo, AccountRepo, } from 'repos'
 import UsersTable from 'components/UsersTable'
 import Reducer from 'reducers';
 import { AccountService } from 'services'
@@ -15,7 +15,7 @@ export async function getServerSideProps(ctx) {
     });
     
 
-    const users = await DiscordAccountRepo.findAll({
+    const users = await AccountRepo.findAll({
         serialize: true,
         humanize: ['lastLogin', 'createdAt', 'updatedAt'],
     });

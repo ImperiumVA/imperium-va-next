@@ -27,6 +27,7 @@ async function main() {
             name: 'Main Menu',
             order: 0,
             adminOnly: false,
+            isRemovable: false,
             isDisabled: false,
             isAuthRequired: true,
             items: [
@@ -52,6 +53,7 @@ async function main() {
                     href: '/onair',
                     label: 'OnAir',
                     isAuthRequired: true,
+                    isDisabled: true,
                     adminOnly: false,
                 },
             ]
@@ -61,6 +63,7 @@ async function main() {
             name: 'Admin Menu',
             order: 0,
             adminOnly: true,
+            isRemovable: false,
             isDisabled: false,
             isAuthRequired: true,
             items: [
@@ -107,13 +110,30 @@ async function main() {
                 adminOnly: menu.adminOnly,
                 isDisabled: menu.isDisabled,
                 isAuthRequired: menu.isAuthRequired,
+                isRemovable: menu.isRemovable,
                 items: {
                     createMany: {
                         data: menu.items
                     },
                 }
             },
-            update: {},
+            update: {
+                slug: menu.slug,
+                name: menu.name,
+                order: menu.order,
+                adminOnly: menu.adminOnly,
+                isDisabled: menu.isDisabled,
+                isAuthRequired: menu.isAuthRequired,
+                isRemovable: menu.isRemovable,
+                items: {
+                    updateMany: menu.items.map((item) => ({
+                        where: {
+                            slug: item.slug,
+                        },
+                        data: item,
+                    })),
+                }
+            },
         })
         
         console.log(`${x.name} upserted ✅`)

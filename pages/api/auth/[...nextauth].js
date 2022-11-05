@@ -1,7 +1,7 @@
 import prisma from "db"
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
-import { DiscordAccountRepo, } from "repos"
+import { AccountRepo, } from "repos"
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -33,9 +33,10 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-        let discordAccount = await DiscordAccountRepo.findByDiscordId(profile.id, { serialize: true, });
-        if (!discordAccount) {
-            discordAccount = await DiscordAccountRepo.create({
+        let Account = await AccountRepo.findByDiscordId(profile.id, { serialize: true, });
+
+        if (!Account) {
+            Account = await AccountRepo.create({
                 discordId: profile.id,
                 username: profile.username,
                 discriminator: profile.discriminator,
@@ -44,17 +45,15 @@ export const authOptions = {
                 locale: profile.locale,
                 lastLogin: new Date(),
             }, { serialize: true, });
-        } else {
-            discordAccount.lastLogin = new Date();
-            discordAccount = await DiscordAccountRepo.update(discordAccount.id, discordAccount, { serialize: true, });
         }
 
-        if (discordAccount.isEnabled === true) {
-            user.discordAccount = discordAccount;
-            return true;
-        } else {
-            return false;
-        }
+        if (Account.isEnabled !== true) return false;
+
+        Account.lastLogin = new Date();
+        Account = await AccountRepo.update(Account.id, Account, { serialize: true, });
+        user.Account = Account;
+        
+        return true;
     },
 
     async jwt({ token, account }) {
@@ -71,7 +70,7 @@ export const authOptions = {
         session.accessToken = token.accessToken
         const discordId = token.sub
 
-        const discordAccount = await DiscordAccountRepo.findByDiscordId(discordId, { serialize: true, });
+        const discordAccount = await AccountRepo.findByDiscordId(discordId, { serialize: true, });
         
         if (!discordAccount) {
             return false;

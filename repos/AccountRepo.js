@@ -1,6 +1,6 @@
 import BaseRepo from './BaseRepo'
 
-class DiscordAccountRepo extends BaseRepo {
+class AccountRepo extends BaseRepo {
     constructor() {
         super('discordAccount')
         this.findByDiscordId = this.findByDiscordId.bind(this)
@@ -40,4 +40,4 @@ class DiscordAccountRepo extends BaseRepo {
     }
 }
 
-export default new DiscordAccountRepo();
+export default new AccountRepo();

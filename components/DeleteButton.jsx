@@ -4,7 +4,7 @@ import {
 } from 'react-bootstrap'
 import { FaTrash } from 'react-icons/fa';
 
-function DeleteButton ({ onClick, id }) {
+function DeleteButton ({ onClick, id, disabled, }) {
     const [isDeleting, setIsDeleting] = useState(false)
 
     const _onClick = async (e) => {
@@ -18,7 +18,7 @@ function DeleteButton ({ onClick, id }) {
         size='md'
         variant='danger'
         onClick={_onClick}
-        disabled={isDeleting}
+        disabled={isDeleting || disabled}
     >
         {(isDeleting) 
          ? 'Deleting...'

@@ -53,14 +53,14 @@ function MenusTable({ data, onDelete, toggleField, ...props }) {
         },
         {
             name: 'actions',
-            cell: (row) => (<ButtonGroup>
-                <Button href={`/admin/menus/${row.id}`} variant='info'>
+            cell: ({ id, isRemovable, }) => (<ButtonGroup>
+                <Button href={`/admin/menus/${id}`} variant='info'>
                     <FaInfoCircle />
                 </Button>
-                <Button href={`/admin/menus/${row.id}/edit`}>
+                <Button href={`/admin/menus/${id}/edit`}>
                     <FaPencilAlt />
                 </Button>
-                <DeleteButton id={row.id} onClick={onDelete} />
+                <DeleteButton id={id} onClick={onDelete} disabled={!isRemovable} />
             </ButtonGroup>)
         }
     ]
