@@ -29,7 +29,9 @@ export default function Dashboard({ menus }) {
             menus={menus}
             heading='Dashboard'
         >
-
+            <div>
+                Cool stuff like stats, graphs and stuff will eventually go here
+            </div>
         </AppLayout>
     )
 }
