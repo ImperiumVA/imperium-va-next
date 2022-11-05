@@ -7,12 +7,13 @@ import Reducer from 'reducers';
 import { AccountService } from 'services'
 
 export async function getServerSideProps(ctx) {
-    const menus = await MenuRepo.findAll({
+    const menus = await MenuRepo.findEnabled({
         serialize: true,
         include: {
             items: true,
         },
     });
+    
 
     const users = await DiscordAccountRepo.findAll({
         serialize: true,

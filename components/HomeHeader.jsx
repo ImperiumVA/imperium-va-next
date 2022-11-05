@@ -55,7 +55,7 @@ function HomeHeader({ menus, }) {
                         {(session && session.user)
                         ? (<>
                             <NavDropdown title={(<Image src={profileImage} roundedCircle width={30} height={30} alt='Profile Photo' />)} id="basic-nav-dropdown" >
-                                <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
+                                <NavDropdown.Item href="/me">Profile</NavDropdown.Item>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item onClick={doSignOut}>Sign Out</NavDropdown.Item>
                             </NavDropdown>

@@ -4,12 +4,13 @@ import { MenuRepo } from 'repos'
 
 
 export async function getServerSideProps(ctx) {
-    const menus = await MenuRepo.findAll({
+    const menus = await MenuRepo.findEnabled({
         serialize: true,
         include: {
             items: true,
         },
     });
+    
 
     return {
         props: {

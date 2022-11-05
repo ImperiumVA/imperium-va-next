@@ -54,3 +54,8 @@ async function getOnAirCompanyDetails(payload) {
 
     return company;
 }
+
+async function refreshCompanyDetails(ownerId) {
+    if (!ownerId) throw new Error('ownerId is required');
+    return await fetchWrapper.put(`${baseUrl}/refreshCompanyDetails`, { ownerId });
+}

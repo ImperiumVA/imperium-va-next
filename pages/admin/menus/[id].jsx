@@ -10,7 +10,7 @@ import MenuItemsTable from 'components/MenuItemsTable'
 export async function getServerSideProps(ctx) {
     const { id } = ctx.params;
     
-    const menus = await MenuRepo.findAll({
+    const menus = await MenuRepo.findEnabled({
         serialize: true,
         include: {
             items: true,
@@ -27,7 +27,10 @@ export async function getServerSideProps(ctx) {
 
     return {
         props: {
-            menus: menus,
+            menus: {
+                mainMenu: menus.filter((x) => x.slug === 'main-menu')[0],
+                adminMenu: menus.filter((x) => x.slug === 'admin-menu')[0],
+            },
             menu: menu,
         }
     }

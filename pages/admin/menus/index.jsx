@@ -7,7 +7,14 @@ import { MenuService } from 'services'
 import MenusTable from 'components/MenusTable'
 
 export async function getServerSideProps() {
-    const menus = await MenuRepo.findAll({
+    const menus = await MenuRepo.findEnabled({
+        serialize: true,
+        include: {
+            items: true,
+        },
+    });
+    
+    const menusList = await MenuRepo.findAll({
         serialize: true,
         humanize: ['createdAt', 'updatedAt'],
         include: {
@@ -17,13 +24,17 @@ export async function getServerSideProps() {
 
     return {
         props: {
-            menus: menus,
+            menus: {
+                mainMenu: menus.filter((x) => x.slug === 'main-menu')[0],
+                adminMenu: menus.filter((x) => x.slug === 'admin-menu')[0],
+            },
+            menusList,
         }
     }
 }
 
-function MenusList({ menus, }) {
-    const [state, dispatch] = useReducer(Reducer, menus);
+function MenusList({ menus, menusList }) {
+    const [state, dispatch] = useReducer(Reducer, menusList);
     
     const doDelete = async (id) => {
         const x = await MenuService.delete(id);

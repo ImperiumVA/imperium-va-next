@@ -6,12 +6,13 @@ import { Container, Row, Col, } from 'react-bootstrap';
 
 
 export async function getServerSideProps(ctx) {
-  const menus = await MenuRepo.findAll({
-    serialize: true,
-    include: {
-        items: true,
-    },
-  });
+    const menus = await MenuRepo.findEnabled({
+        serialize: true,
+        include: {
+            items: true,
+        },
+    });
+    
 
   return {
     props: {

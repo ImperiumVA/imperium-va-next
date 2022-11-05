@@ -33,6 +33,7 @@ async function UpsertCompany(req, res) {
     if (!companyId) throw 'OnAir Company ID is required'
 
     let oaDetails = await OnAirService.queryCompanyDetails({ apiKey, companyId, })
+    
     const newCompany = {
         name: oaDetails.Name, // String
         companyId: oaDetails.Id, // String
@@ -69,14 +70,17 @@ async function UpsertCompany(req, res) {
         currentBadgeUrl: oaDetails.CurrentBadgeUrl, // String
         currentBadgeName: oaDetails.CurrentBadgeName, // String
         lastWeeklyManagementsPaymentDate: (oaDetails.LastWeeklyManagementsPaymentDate) ? new Date(oaDetails.LastWeeklyManagementsPaymentDate) : null, // DateTime
+        onAirSyncedAt: new Date(), // DateTime
         owner: {
             connect: {
-                id: user.id,
+                id: user.accountId,
             }
         }
     }
 
-    let x = await OnAirCompanyRepo.upsertByGuid(oaDetails.Id, newCompany);
+    let x = await OnAirCompanyRepo.upsertByGuid(oaDetails.Id, newCompany, {
+        humanize: ['createdAt', 'updatedAt', 'onAirSyncedAt', 'lastConnection', 'lastReportDate', 'creationDate', 'pausedDate', 'lastWeeklyManagementsPaymentDate'],
+    });
 
     return res.status(201).json(x)
 }
