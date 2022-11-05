@@ -22,8 +22,6 @@ export const authOptions = {
                     profile.image_url = `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.${format}`
                 }
 
-                console.log('DiscordProfile', profile)
-
                 return {
                     id: profile.id,
                     email: profile.email,
