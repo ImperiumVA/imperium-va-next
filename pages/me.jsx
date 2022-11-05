@@ -7,7 +7,6 @@ import { CompanyService } from 'services';
 import OnAirForm from 'components/OnAirForm'
 import LevelBar from 'components/LevelBar'
 import { Row, Col, Form, FloatingLabel, Button, } from 'react-bootstrap'
-import { OnAirCompanyRepo } from 'repos';
 import { authOptions } from "pages/api/auth/[...nextauth]"
 import { useRouter, } from 'next/router';
 import OnAirReducer from 'reducers/OnAirReducer';
@@ -18,11 +17,16 @@ export async function getServerSideProps(ctx) {
         res
     } = ctx
     
-    const session = await unstable_getServerSession(
+    const {
+        user,
+        ...session
+    } = await unstable_getServerSession(
         req,
         res,
         authOptions
     )
+
+    console.log(user);
     
     const menus = await MenuRepo.findEnabled({
         serialize: true,
@@ -31,21 +35,15 @@ export async function getServerSideProps(ctx) {
         },
     });
     
-
-    const company = await OnAirCompanyRepo.findByOwnerId(session.user.accountId, {
-        humanize: ['createdAt', 'updatedAt', 'onAirSyncedAt', 'lastConnection', 'lastReportDate', 'creationDate', 'pausedDate', 'lastWeeklyManagementsPaymentDate'],
-        serialize: true
-    })
-
     return {
         props: {
-            user: JSON.parse(JSON.stringify(session.user)),
+            user: null,
             menus: {
                 mainMenu: menus.filter((x) => x.slug === 'main-menu')[0],
                 adminMenu: menus.filter((x) => x.slug === 'admin-menu')[0],
             },
             onAir: {
-                company,
+                company: null,
             }
         },
     }
@@ -79,9 +77,9 @@ function me({
     return (
         <AppLayout
             menus={menus}
-            heading={`Hi, ${user.name}`}
+            heading={(user) ? `Hi, ${user.name}` : undefined}
         >
-            {(state)
+            {(onAir && onAir.company)
             ? (<>
                 <Row>
                     <Col>
@@ -182,8 +180,8 @@ function me({
             
                 <Row>
                     <Col>
-                        <p>It looks like you haven&apos;t connected your On Air account yet.<br/>
-                        Go ahead and add Your OnAir Company details below to associate your Discord account to your OnAir Company.
+                        <p>It looks like you haven&apos;t linked your On Air Company yet.<br/>
+                        Please add Your OnAir Company details below to associate your Discord account with your OnAir Company.
                         </p>
                     </Col>
                 </Row>

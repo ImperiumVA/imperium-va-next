@@ -19,7 +19,7 @@ class OnAirCompanyRepo extends BaseRepo {
             include: (opts?.include) ? opts.include : undefined,
         }
 
-        return this.Model.findUnique(query)
+        return await this.Model.findUnique(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
             .then((x) => (opts?.serialize) ? self.serialize(x) : x)

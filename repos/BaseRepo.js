@@ -1,4 +1,4 @@
-import prisma from '@db'
+import { PrismaClient } from '@prisma/client';
 import moment from 'moment'   
 
 function _humanize(date) {
@@ -10,11 +10,15 @@ function _humanize(date) {
 
 export class BaseRepo {
     Model;
-    prisma = prisma;
+    prisma = undefined;
 
     constructor(model) {
         if (!model) throw new Error('No model name provided');
         
+        if (!this.prisma) {
+            this.prisma = new PrismaClient();
+        }
+
         this.Model = this.prisma[model];
         this.create = this.create.bind(this);
         this.update = this.update.bind(this);
@@ -89,9 +93,7 @@ export class BaseRepo {
 
         const query = {
             data: newX,
-            orderBy: {
-                order: (opts?.orderBy) ? opts.orderBy : 'asc',
-            },
+            orderBy: (opts?.orderBy) ? opts.orderBy : undefined,
             include: (opts?.include) ? opts.include : undefined,
         }
 
@@ -117,6 +119,7 @@ export class BaseRepo {
         }
 
         return await this.Model.update(query)
+            .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
             .then((x) => (opts?.serialize) ? self.serialize(x) : x)
     }

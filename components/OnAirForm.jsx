@@ -29,11 +29,10 @@ const companySchema = Yup.object().shape({
 
 export function OnAirForm({ doSubmit, }) {
   const initialState = {
-    syncOnAir: false,
     identifier: '',
     name: '',
-    companyId: '3a5bdf29-82f8-4c3c-8d21-ccbca8dfca34',
-    apiKey: '5e4c21b0-59a3-4113-a5eb-16e8eca0ef51',
+    companyId: '',
+    apiKey: '',
     isLoading: false,
     hasLoaded: false,
     formIsValid: false,
@@ -44,7 +43,6 @@ export function OnAirForm({ doSubmit, }) {
   const {
     identifier,
     name,
-    syncOnAir,
     companyId,
     apiKey,
     isLoading,
@@ -118,7 +116,6 @@ export function OnAirForm({ doSubmit, }) {
     let x = {
       name,
       identifier,
-      syncOnAir,
       companyId: (syncOnAir && companyId) ? companyId : undefined,
       apiKey: (syncOnAir && apiKey) ? apiKey : undefined,
     }
@@ -158,55 +155,6 @@ export function OnAirForm({ doSubmit, }) {
     <div>
       <Form onSubmit={onSubmit}>
         <Row>
-          <Col>
-            <Form.Group>
-              <Form.Check
-                type='switch'
-                name='syncOnAir'
-                id='syncOnAir'
-                label='Sync OnAir?'
-                onChange={handleFieldChange}
-                value={syncOnAir}
-                className='mb-3'
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={4}>
-            <Form.Group>
-              <FloatingLabel label='Company Identifier (CAO) Code'>
-                <Form.Control
-                  type='text'
-                  name='identifier'
-                  id='identifier'
-                  className='mb-3'
-                  defaultValue={identifier}
-                  onChange={handleFieldChange}
-                  disabled={(syncOnAir === true)}
-                />
-              </FloatingLabel>
-            </Form.Group>
-          </Col>
-          <Col md={8}>
-            <Form.Group>
-              <FloatingLabel label='Company Name'>
-                <Form.Control
-                  type='text'
-                  name='name'
-                  id='name'
-                  className='mb-3'
-                  defaultValue={name}
-                  onChange={handleFieldChange}
-                  disabled={(syncOnAir === true)}
-                />
-              </FloatingLabel>
-            </Form.Group>
-          </Col>
-        </Row>
-        {syncOnAir &&
-        <>
-        <Row>
           <Col md={6}>
           <Form.Group>
             <FloatingLabel label='OnAir Company ID'>
@@ -236,6 +184,39 @@ export function OnAirForm({ doSubmit, }) {
             </Form.Group>
           </Col>
         </Row>
+        {(companyId.length === 36 && apiKey.length === 36) && (<>
+        <Row>
+          <Col md={4}>
+            <Form.Group>
+              <FloatingLabel label='Company Identifier (CAO) Code'>
+                <Form.Control
+                  type='text'
+                  name='identifier'
+                  id='identifier'
+                  className='mb-3'
+                  defaultValue={identifier}
+                  onChange={handleFieldChange}
+                  disabled
+                />
+              </FloatingLabel>
+            </Form.Group>
+          </Col>
+          <Col md={8}>
+            <Form.Group>
+              <FloatingLabel label='Company Name'>
+                <Form.Control
+                  type='text'
+                  name='name'
+                  id='name'
+                  className='mb-3'
+                  defaultValue={name}
+                  onChange={handleFieldChange}
+                  disabled
+                />
+              </FloatingLabel>
+            </Form.Group>
+          </Col>
+        </Row>
         <Row>
           <Col>
               <Button
@@ -247,8 +228,7 @@ export function OnAirForm({ doSubmit, }) {
               </Button>
           </Col>
         </Row>
-        </>
-        }
+        </>)}
         <Row>
           <Col>
             <hr />
@@ -259,6 +239,7 @@ export function OnAirForm({ doSubmit, }) {
             <Button
               type='submit'
               variant='success'
+              disabled={(!hasLoaded || isLoading || (companyId.length !== 36 || apiKey.length !== 36))}
             >
               Submit
             </Button>
