@@ -30,7 +30,7 @@ export const LevelBar = (props) => {
                 firstLoad: false,
             })
         }
-    }, [state, props])
+    }, [state, props, firstLoad])
 
     return (<>
         <ProgressBar variant='info' now={xp} min={0} max={levelXP}/>

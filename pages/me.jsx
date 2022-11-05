@@ -1,4 +1,4 @@
-import { useState, useEffect, useReducer, } from 'react';
+import React from 'react';
 import AppLayout from 'layouts/AppLayout'
 import { useSession, } from "next-auth/react"
 import { unstable_getServerSession } from "next-auth/next"
@@ -10,7 +10,7 @@ import { Row, Col, Form, FloatingLabel, Button, } from 'react-bootstrap'
 import { OnAirCompanyRepo } from 'repos';
 import { authOptions } from "pages/api/auth/[...nextauth]"
 import { useRouter, } from 'next/router';
-import Reducer from 'reducers';
+import OnAirReducer from 'reducers/OnAirReducer';
 
 export async function getServerSideProps(ctx) {
     const { 
@@ -56,11 +56,6 @@ function me({
     onAir,
     user,
 }) {
-    const [state, dispatch] = useReducer(Reducer, onAir);
-
-    const router = useRouter()
-    const profileImage = user.image || '/ProfilePhoto.jpg'
-
     const upsertOnAir = async (values) => {
         if (!user) return;
 
@@ -74,8 +69,8 @@ function me({
         if (!user) return;
 
         const x = await CompanyService.upsert(user.accountId, {
-            apiKey: state.company.companyApiKey,
-            companyId: state.company.companyId
+            apiKey: onAir.company.companyApiKey,
+            companyId: onAir.company.companyId
         })
 
         return x
@@ -106,7 +101,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='airlineCode'
-                                defaultValue={state.company.airlineCode}
+                                defaultValue={onAir.company.airlineCode}
                                 disabled={true}
                             />
                         </FloatingLabel>
@@ -116,7 +111,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='name'
-                                defaultValue={state.company.name}
+                                defaultValue={onAir.company.name}
                                 disabled={true}
                             />
                         </FloatingLabel>
@@ -126,7 +121,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_onAirSyncedAt'
-                                defaultValue={state.company.humanized_onAirSyncedAt}
+                                defaultValue={onAir.company.humanized_onAirSyncedAt}
                                 disabled={true}
                             />
                         </FloatingLabel>
@@ -138,7 +133,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_lastConnection'
-                                defaultValue={state.company.humanized_lastConnection}
+                                defaultValue={onAir.company.humanized_lastConnection}
                                 disabled={true}
                             />
                         </FloatingLabel>
@@ -148,7 +143,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_lastWeeklyManagementsPaymentDate'
-                                defaultValue={state.company.humanized_lastWeeklyManagementsPaymentDate}
+                                defaultValue={onAir.company.humanized_lastWeeklyManagementsPaymentDate}
                                 disabled={true}
                             />
                         </FloatingLabel>
@@ -159,18 +154,18 @@ function me({
                         span: 3,
                         offset:4,
                     }} className='text-center mt-3'>
-                        {(state.company.level) &&
+                        {(onAir.company.level) &&
                             <>
-                                <h5>{`Level ${state.company.level}`}</h5>
+                                <h5>{`Level ${onAir.company.level}`}</h5>
                                 <em style={{
                                     fontSize: '14px'
-                                }}>{`${state.company.levelXP}/${state.company.level * 1000}`}</em>
-                                <LevelBar xp={state.company.levelXP} level={state.company.level} levelXP={state.company.level * 1000} />
-                                {state.company.reputation &&
+                                }}>{`${onAir.company.levelXP}/${onAir.company.level * 1000}`}</em>
+                                <LevelBar xp={onAir.company.levelXP} level={onAir.company.level} levelXP={onAir.company.level * 1000} />
+                                {onAir.company.reputation &&
                                 <p style={{
                                     fontSize: '14px'
                                 }}>
-                                    {`Reputation: ${(state.company.reputation * 100).toFixed(2)}%`}
+                                    {`Reputation: ${(onAir.company.reputation * 100).toFixed(2)}%`}
                                 </p>
                                 }
                             </>
@@ -187,7 +182,7 @@ function me({
             
                 <Row>
                     <Col>
-                        <p>It looks like you haven't connected your On Air account yet.<br/>
+                        <p>It looks like you haven&apos;t connected your On Air account yet.<br/>
                         Go ahead and add Your OnAir Company details below to associate your Discord account to your OnAir Company.
                         </p>
                     </Col>

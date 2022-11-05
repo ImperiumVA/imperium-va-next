@@ -1,5 +1,5 @@
 import { apiHandler, omit } from 'helpers/api'
-import { DiscordAccountRepo, } from 'repos'
+import { AccountRepo, } from 'repos'
 
 export default apiHandler({
     put: Update,
@@ -22,7 +22,7 @@ async function Update(req, res) {
         isAdmin,
     } = req.body
 
-    let x = await DiscordAccountRepo.update(id, {
+    let x = await AccountRepo.update(id, {
         username,
         email,
         locale,
@@ -41,7 +41,7 @@ async function Delete(req, res) {
     } = req.query
     if (!id) throw 'ID is required'
 
-    let x = await DiscordAccountRepo.destroy(id);
+    let x = await AccountRepo.destroy(id);
 
     return res.status(200).json(x)
 }

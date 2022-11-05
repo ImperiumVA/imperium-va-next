@@ -40,7 +40,7 @@ function Alert({ dismissable, type, heading, message, id, fade, autoClose, ...pr
             <hr />
             <div className="d-flex justify-content-end">
                 <Button onClick={() => setShow(false)} variant="secondary">
-                    Close me y'all!
+                    Close me y&apos;all!
                 </Button>
             </div>
         </BSAlert>
