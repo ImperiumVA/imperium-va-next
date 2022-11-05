@@ -36,6 +36,7 @@ async function main() {
                     href: '/',
                     label: 'Home',
                     isAuthRequired: false,
+                    adminOnly: false,
                 },
                 {
                     slug: 'dashboard',
@@ -43,6 +44,7 @@ async function main() {
                     href: '/dashboard',
                     label: 'Dashboard',
                     isAuthRequired: true,
+                    adminOnly: false,
                 },
                 {
                     slug: 'onair',
@@ -50,6 +52,7 @@ async function main() {
                     href: '/onair',
                     label: 'OnAir',
                     isAuthRequired: true,
+                    adminOnly: false,
                 },
             ]
         },
@@ -67,6 +70,7 @@ async function main() {
                     href: '/admin/users',
                     label: 'Manage Users',
                     isAuthRequired: true,
+                    adminOnly: true,
                 },
                 {
                     slug: 'manage-menus',
@@ -74,6 +78,7 @@ async function main() {
                     href: '/admin/menus',
                     label: 'Manage Menus',
                     isAuthRequired: true,
+                    adminOnly: true,
                 },
             ]
         }

@@ -98,6 +98,7 @@ model MenuItem {
     isExternal     Boolean  @default(false)
     isDisabled     Boolean  @default(false)
     isAuthRequired Boolean  @default(false)
+    adminOnly      Boolean  @default(false)
     createdAt      DateTime @default(now())
     updatedAt      DateTime @updatedAt
 
