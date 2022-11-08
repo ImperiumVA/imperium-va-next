@@ -110,17 +110,18 @@ export function OnAirForm({ doSubmit, }) {
 
   }
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
 
     let x = {
       name,
       identifier,
-      companyId: (syncOnAir && companyId) ? companyId : undefined,
-      apiKey: (syncOnAir && apiKey) ? apiKey : undefined,
+      companyId: companyId || undefined,
+      apiKey: apiKey || undefined,
     }
 
-    doSubmit(x)
+    console.log('onSubmit()', x);
+    await doSubmit(x)
   }
 
   const toggleIsLoadding = (override) => {

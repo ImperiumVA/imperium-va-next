@@ -20,9 +20,32 @@ class OnAirCompanyRepo extends BaseRepo {
         }
 
         return await this.Model.findUnique(query)
+            .then((x) => self.determineCanSync(x))
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
             .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+    }
+
+    determineCanSync (x) {
+        if (!x) return null;
+        let canSync = false;
+    
+        // if onAirSyncedAt is not null
+        if (x.onAirSyncedAt) {
+            const currentDate = new Date()
+            const onAirSyncedAt = new Date(x.onAirSyncedAt)
+            const ONE_MIN = 1*60*1000
+    
+            // if the difference between the current date and the onAirSyncedAt date is greater than 1 minute
+            if ((currentDate - onAirSyncedAt) > ONE_MIN) {
+                canSync = true
+            }
+        }
+    
+        return {
+            ...x,
+            canSync,
+        }
     }
 
     async upsert(id, payload, opts) {
@@ -43,6 +66,7 @@ class OnAirCompanyRepo extends BaseRepo {
         }
 
         return await this.Model.upsert(query)
+            .then((x) => self.determineCanSync(x))
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
             .then((x) => (opts?.serialize) ? self.serialize(x) : x)
@@ -67,6 +91,7 @@ class OnAirCompanyRepo extends BaseRepo {
         }
 
         return await this.Model.upsert(query)
+        .then((x) => self.determineCanSync(x))
         .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
         .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
         .then((x) => (opts?.serialize) ? self.serialize(x) : x)

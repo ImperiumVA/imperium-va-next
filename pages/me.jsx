@@ -1,6 +1,5 @@
-import React from 'react';
+import { useState, } from 'react';
 import AppLayout from 'layouts/AppLayout'
-import { useSession, } from "next-auth/react"
 import { unstable_getServerSession } from "next-auth/next"
 import { MenuRepo } from 'repos'
 import { CompanyService } from 'services';
@@ -9,7 +8,7 @@ import LevelBar from 'components/LevelBar'
 import { Row, Col, Form, FloatingLabel, Button, } from 'react-bootstrap'
 import { authOptions } from "pages/api/auth/[...nextauth]"
 import { useRouter, } from 'next/router';
-import OnAirReducer from 'reducers/OnAirReducer';
+import { OnAirCompanyRepo } from 'repos';
 
 export async function getServerSideProps(ctx) {
     const { 
@@ -35,41 +34,78 @@ export async function getServerSideProps(ctx) {
         },
     });
     
+    const company = await OnAirCompanyRepo.findByOwnerId(user.accountId, {
+        serialize: true,
+        include: {
+            owner: true,
+        },
+        humanize: [
+            'createdAt', 
+            'updatedAt', 
+            'onAirSyncedAt', 
+            'lastConnection', 
+            'lastReportDate', 
+            'creationDate', 
+            'pausedDate', 
+            'lastWeeklyManagementsPaymentDate'
+        ],
+    });
+
     return {
         props: {
-            user: null,
+            user: user,
             menus: {
                 mainMenu: menus.filter((x) => x.slug === 'main-menu')[0],
                 adminMenu: menus.filter((x) => x.slug === 'admin-menu')[0],
             },
             onAir: {
-                company: null,
+                company,
             }
         },
     }
 }
 
-function me({
+function Me({
     menus,
     onAir,
     user,
 }) {
+    const [isSyncing, setIsSyncing] = useState(false);
+    const router = useRouter();
     const upsertOnAir = async (values) => {
-        if (!user) return;
+        if (!user) {
+            console.log('no user');
+            return;
+        }
+        if (!values) {
+            console.log('no values');
+            return;
+        }
+
+        console.log(`upsertOnAir`, values);
 
         const x = await CompanyService.upsert(user.accountId, values)
+        router.push('/me');
         return x
     }
 
-    const syncOnAir = async () => {
-        console.log('syncOnAir')
+    const syncOnAir = async (e) => {
+        e.preventDefault();
+        setIsSyncing(true);
 
-        if (!user) return;
+        if (!user) {
+            console.log('no user');
+            return;
+        }
 
         const x = await CompanyService.upsert(user.accountId, {
             apiKey: onAir.company.companyApiKey,
             companyId: onAir.company.companyId
         })
+
+        setIsSyncing(false);
+        
+        router.push('/me');
 
         return x
     }
@@ -89,7 +125,7 @@ function me({
                 <Row>
                     <Col>
                         <p>
-                            Thanks for adding your OnAir Company to the platform. Your Discord account has been linked to your OnAir Company. Stay tuned to the Discord channel for new features and updates.
+                            Thanks for adding your OnAir Company to the platform. <br/>Your Discord account has been linked to your OnAir Company. <br/>Stay tuned to the Discord channel for new features and updates.
                         </p>
                     </Col>
                 </Row>
@@ -119,6 +155,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_onAirSyncedAt'
+                                alt={onAir.onAirSyncedAt}
                                 defaultValue={onAir.company.humanized_onAirSyncedAt}
                                 disabled={true}
                             />
@@ -131,6 +168,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_lastConnection'
+                                alt={onAir.lastConnection}
                                 defaultValue={onAir.company.humanized_lastConnection}
                                 disabled={true}
                             />
@@ -141,6 +179,7 @@ function me({
                             <Form.Control
                                 type='text'
                                 name='humanized_lastWeeklyManagementsPaymentDate'
+                                alt={onAir.lastWeeklyManagementsPaymentDate}
                                 defaultValue={onAir.company.humanized_lastWeeklyManagementsPaymentDate}
                                 disabled={true}
                             />
@@ -172,7 +211,14 @@ function me({
                 </Row>
                 <Row>
                     <Col>
-                        <Button variant='primary' onClick={syncOnAir}>Sync</Button>
+                        <Button variant='primary' onClick={syncOnAir} disabled={(onAir.company.canSync !== true)}>
+                            {(isSyncing)
+                                ? 'Syncing...'
+                                : (onAir.company.canSync === true)
+                                    ? 'Request Manual Sync'
+                                    : (onAir.company.onAirSyncedAt) ? 'You can sync again in 1 min' : 'Request Manual Sync'
+                            }
+                        </Button>
                     </Col>
                 </Row>
             </>)
@@ -199,4 +245,4 @@ function me({
     );
 }
 
-export default me;
+export default Me;

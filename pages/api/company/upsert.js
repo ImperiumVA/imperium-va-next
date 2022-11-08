@@ -80,7 +80,10 @@ async function UpsertCompany(req, res) {
 
     let x = await OnAirCompanyRepo.upsertByGuid(oaDetails.Id, newCompany, {
         humanize: ['createdAt', 'updatedAt', 'onAirSyncedAt', 'lastConnection', 'lastReportDate', 'creationDate', 'pausedDate', 'lastWeeklyManagementsPaymentDate'],
+        serialize: true,
     });
+
+    
 
     return res.status(201).json(x)
 }
