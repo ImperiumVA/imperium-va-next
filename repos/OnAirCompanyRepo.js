@@ -23,7 +23,7 @@ class OnAirCompanyRepo extends BaseRepo {
             .then((x) => self.determineCanSync(x))
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     determineCanSync (x) {
@@ -69,7 +69,7 @@ class OnAirCompanyRepo extends BaseRepo {
             .then((x) => self.determineCanSync(x))
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     async upsertByGuid(companyId, payload, opts) {
@@ -94,7 +94,7 @@ class OnAirCompanyRepo extends BaseRepo {
         .then((x) => self.determineCanSync(x))
         .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
         .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-        .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+        .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 }
 

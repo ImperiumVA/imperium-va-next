@@ -67,14 +67,14 @@ export const authOptions = {
             session.user.id = token.sub;
 
             const Account = await AccountRepo.findByDiscordId(session.user.id);
-            console.log('Session() Account:', Account);
+            // console.log('Session() Account:', Account);
 
             if (Account) {
                 session.user.accountId = Account.id;
                 session.user.isAdmin = Account.isAdmin;
             }
 
-            console.log('Session() session:', session);
+            // console.log('Session() session:', session);
             return session;
         },
         async jwt({ token, account }) {
