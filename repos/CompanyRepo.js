@@ -1,8 +1,8 @@
 import BaseRepo from './BaseRepo'
 
-class OnAirCompanyRepo extends BaseRepo {
+class CompanyRepo extends BaseRepo {
     constructor() {
-        super('onAirCompany')
+        super('company')
         this.upsert = this.upsert.bind(this)
         this.upsertByGuid = this.upsertByGuid.bind(this)
         this.findByOwnerId = this.findByOwnerId.bind(this)
@@ -79,7 +79,7 @@ class OnAirCompanyRepo extends BaseRepo {
 
         const query = {
             where: {
-                companyId: (typeof companyId === 'string') ? companyId : companyId.toString(),
+                guid: (typeof companyId === 'string') ? companyId : companyId.toString(),
             },
             update: {
                 ...payload,
@@ -98,4 +98,4 @@ class OnAirCompanyRepo extends BaseRepo {
     }
 }
 
-export default new OnAirCompanyRepo();
+export default new CompanyRepo();

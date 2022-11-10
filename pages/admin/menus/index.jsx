@@ -5,6 +5,7 @@ import MenuRepo from 'repos/MenuRepo'
 import Reducer from 'reducers';
 import { MenuService } from 'services'
 import MenusTable from 'components/MenusTable'
+import AddMenu from 'components/AddMenu';
 
 export async function getServerSideProps() {
     const menus = await MenuRepo.findEnabled({
@@ -43,6 +44,13 @@ function MenusList({ menus, menusList }) {
         return x;
     }
 
+    const doCreate = async (values) => {
+        const x = await MenuService.create(values);
+        dispatch({ type: 'add', payload: x });
+
+        return x;
+    }
+
     
     const toggleField = async(key, id) => {
         const x = await MenuService.toggleField(id, key);
@@ -61,6 +69,16 @@ function MenusList({ menus, menusList }) {
                         onDelete={doDelete}
                         toggleField={toggleField}
                     />
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <hr />
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <AddMenu onCreate={doCreate} />
                 </Col>
             </Row>
         </AppLayout>

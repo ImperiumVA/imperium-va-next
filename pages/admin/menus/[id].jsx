@@ -5,6 +5,8 @@ import { MenuRepo } from 'repos'
 import Reducer from 'reducers';
 import { MenuService, MenuItemService, } from 'services'
 import MenuItemsTable from 'components/MenuItemsTable'
+import AddMenuItem from 'components/AddMenuItem'
+import { useRouter } from 'next/router'
 
 
 export async function getServerSideProps(ctx) {
@@ -37,31 +39,39 @@ export async function getServerSideProps(ctx) {
 }
 
 function MenuDetail({ menus, menu, }) {
-    const [state, dispatch] = useReducer(Reducer, menu);
-    
+    const [menuState, dispatch] = useReducer(Reducer, menu);
+    const router = useRouter();
+
     const doMenuItemDelete = async (id) => {
         const x = await MenuItemService.delete(id);
-        dispatch({ type: 'delete', payload: id });
+        dispatch({ type: 'deleteItem', payload: id });
 
-        return x;
+        return router.reload();
     }
 
     const toggleMenuItemField = async(key, id) => {
         const x = await MenuItemService.toggleField(id, key);
-        dispatch({ type: 'update', payload: x });
+        dispatch({ type: 'updateItem', payload: x });
     }
     
     const doDelete = async (id) => {
         const x = await MenuService.delete(id);
         dispatch({ type: 'delete', payload: id });
 
-        return x;
+        return router.reload();
     }
 
     const toggleField = async(key, id) => {
         const x = await MenuService.toggleField(id, key);
         dispatch({ type: 'update', payload: x });
     }
+
+    const doCreate = async (values) => {
+        const x = await MenuItemService.create(values);
+        
+        return router.reload();
+    }
+
 
     return (
         <AppLayout
@@ -71,9 +81,22 @@ function MenuDetail({ menus, menu, }) {
             <Row>
                 <Col>
                     <MenuItemsTable
-                        data={state.items}
+                        data={menuState.items}
                         onDelete={doMenuItemDelete}
                         toggleField={toggleMenuItemField}
+                    />
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <hr />
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <AddMenuItem
+                        menu={menu}
+                        doCreate={doCreate}
                     />
                 </Col>
             </Row>

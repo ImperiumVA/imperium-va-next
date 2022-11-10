@@ -10,6 +10,13 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model AppConfig {
+    id        Int      @id @default(autoincrement())
+    appTitle  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
 model Account {
     id             Int            @id @default(autoincrement())
     discordId      String         @unique
@@ -23,15 +30,64 @@ model Account {
     lastLogin      DateTime?
     createdAt      DateTime       @default(now())
     updatedAt      DateTime       @updatedAt
-    onAirCompanies OnAirCompany[]
+    onAirCompanies Company[]
 }
 
-model OnAirCompany {
+model VirtualAirline {
+    id                                     Int       @id @default(autoincrement())
+    name                                   String
+    airlineCode                            String    @unique
+    guid                                   String    @unique
+    apiKey                                 String @unique
+    initalOwnerEquity                      Int?
+    percentDividendsToDistribute           Float?
+    lastDividendsDistribution              DateTime?
+    imageName                              String?
+    forceAssignJobsToPilots                Boolean?
+    automaticallyAssignJobWhenTaken        Boolean?
+    automaticallyAssignJobWhenLoaded       Boolean?
+    restrictEmployeesUsage                 Boolean?
+    restrictLoadingVAJobsIntoNonVAAircraft Boolean?
+    restrictLoadingNonVAJobsIntoVAAircraft Boolean?
+    memberCount                            Int?
+    lastConnection                         DateTime?
+    lastReportDate                         DateTime?
+    reputation                             Float?
+    creationDate                           DateTime
+    difficultyLevel                        Int?
+    uTCOffsetinHours                       Float?
+    paused                                 Boolean?
+    level                                  Int?
+    levelXP                                Int?
+    transportEmployeeInstant               Boolean?
+    transportPlayerInstant                 Boolean?
+    forceTimeInSimulator                   Boolean?
+    useSmallAirports                       Boolean?
+    useOnlyVanillaAirports                 Boolean?
+    enableSkillTree                        Boolean?
+    checkrideLevel                         Int?
+    enableLandingPenalities                Boolean?
+    enableEmployeesFlightDutyAndSleep      Boolean?
+    aircraftRentLevel                      Int?
+    enableCargosAndChartersLoadingTime     Boolean?
+    inSurvival                             Boolean?
+    payBonusFactor                         Float?
+    enableSimFailures                      Boolean?
+    disableSeatsConfigCheck                Boolean?
+    realisticSimProcedures                 Boolean?
+    travelTokens                           Int?
+
+    members   Company[]
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @updatedAt
+}
+
+model Company {
     id                                 Int       @id @default(autoincrement())
     name                               String
-    companyId                          String    @unique
-    companyApiKey                      String?
+    guid                               String    @unique
     airlineCode                        String    @unique
+    apiKey                             String    @unique
     lastConnection                     DateTime
     lastReportDate                     DateTime
     reputation                         Float
@@ -59,16 +115,18 @@ model OnAirCompany {
     disableSeatsConfigCheck            Boolean
     realisticSimProcedures             Boolean
     travelTokens                       Int
+    virtualAirlineId                  Int?
     currentBadgeId                     String?
     currentBadgeUrl                    String?
     currentBadgeName                   String?
     lastWeeklyManagementsPaymentDate   DateTime?
-
-    onAirSyncedAt DateTime?
-    ownerId       Int @unique
-    owner         Account @relation(fields: [ownerId], references: [id])
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
+    onAirSyncedAt  DateTime?
+    
+    ownerId        Int            @unique
+    owner          Account        @relation(fields: [ownerId], references: [id])
+    virtualAirline VirtualAirline? @relation(fields: [virtualAirlineId], references: [id])
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
 }
 
 model Menu {

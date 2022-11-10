@@ -3,3 +3,4 @@ export * from './MenuService';
 export * from './MenuItemService';
 export * from './CompanyService';
 export * from './AlertService';
+export * from './VirtualAirlineService';

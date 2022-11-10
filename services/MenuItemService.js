@@ -1,5 +1,4 @@
 import getConfig from 'next/config';
-import Router from 'next/router';
 import { fetchWrapper } from 'helpers';
 
 const { publicRuntimeConfig } = getConfig();
@@ -14,6 +13,7 @@ export const MenuItemService = {
     destroy,
     delete: destroy,
     toggleField: toggleField,
+    create: create,
 };
 
 async function getAll() {
@@ -40,4 +40,11 @@ async function toggleField(id, key) {
     if (!key) throw new Error('key is required');
     
     return await fetchWrapper.put(`${baseUrl}/toggleField/${id}`, {key});
+}
+
+async function create(payload) {
+    if (!payload) throw new Error('Payload is required');
+    if (!payload.menuId) throw new Error('menuId is required');
+
+    return await fetchWrapper.post(baseUrl, payload);
 }

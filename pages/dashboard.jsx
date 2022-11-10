@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { MenuRepo } from 'repos'
 import { AlertService, AlertType } from 'services';
 import { Button, } from 'react-bootstrap'
+import { useEffect } from 'react';
 
 export async function getServerSideProps(ctx) {
     const menus = await MenuRepo.findEnabled({

@@ -12,7 +12,7 @@ export const UserReducer = (state, action) => {
                     return action.payload;
                 }
                 return item;
-            });
+            });        
         default:
             return state;
     }

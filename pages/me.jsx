@@ -8,7 +8,7 @@ import LevelBar from 'components/LevelBar'
 import { Row, Col, Form, FloatingLabel, Button, } from 'react-bootstrap'
 import { authOptions } from "pages/api/auth/[...nextauth]"
 import { useRouter, } from 'next/router';
-import { OnAirCompanyRepo } from 'repos';
+import { CompanyRepo } from 'repos';
 
 export async function getServerSideProps(ctx) {
     const { 
@@ -34,7 +34,7 @@ export async function getServerSideProps(ctx) {
         },
     });
     
-    const company = await OnAirCompanyRepo.findByOwnerId(user.accountId, {
+    const company = await CompanyRepo.findByOwnerId(user.accountId, {
         serialize: true,
         include: {
             owner: true,

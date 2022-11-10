@@ -82,7 +82,11 @@ export const authOptions = {
             if (account) {
                 token.accessToken = account.access_token
             }
-    
+
+            const Account = await AccountRepo.findByDiscordId(token.sub);
+            token.isAdmin = (Account) ? Account.isAdmin : false;
+            token.accountId = (Account) ? Account.id : null;
+            
             return token
         },
         async redirect({ url, baseUrl }) {

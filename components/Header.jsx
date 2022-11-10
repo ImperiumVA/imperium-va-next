@@ -75,12 +75,11 @@ export default function Header({ menus: { mainMenu, adminMenu }, }) {
                     </NavDropdown>
                     {(session.user.isAdmin === true) && (
                     <NavDropdown title={(<FaCogs />)} id="admin-nav-dropdown">
-                        <NavDropdown.Item href="/admin/users">
-                            Manage Users
-                        </NavDropdown.Item>
-                        <NavDropdown.Item href="/admin/menus">
-                            Manage Menus
-                        </NavDropdown.Item>
+                        {(adminMenu && adminMenu.items.length > 0)
+                        ? adminMenu.items.map((menuItem, k) => (<NavDropdown.Item key={k} href={menuItem.href}>
+                            {menuItem.label}
+                        </NavDropdown.Item>))
+                        : null}
                     </NavDropdown>
                     )}
                 </>)

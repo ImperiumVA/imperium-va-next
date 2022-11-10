@@ -1,6 +1,6 @@
 import { unstable_getServerSession } from "next-auth/next"
 import { apiHandler, omit } from 'helpers/api'
-import { OnAirCompanyRepo, } from 'repos'
+import { CompanyRepo, } from 'repos'
 import { OnAirService } from 'helpers/onair'
 import { authOptions } from "pages/api/auth/[...nextauth]"
 
@@ -29,6 +29,7 @@ async function UpsertCompany(req, res) {
         companyId,
         apiKey,
     } = JSON.parse(req.body)
+
     if (!apiKey) throw 'OnAir API Key is required'
     if (!companyId) throw 'OnAir Company ID is required'
 
@@ -36,8 +37,8 @@ async function UpsertCompany(req, res) {
     
     const newCompany = {
         name: oaDetails.Name, // String
-        companyId: oaDetails.Id, // String
-        companyApiKey: apiKey, // String
+        guid: oaDetails.Id, // String
+        apiKey: apiKey, // String
         airlineCode: oaDetails.AirlineCode, // String
         lastConnection: (oaDetails.LastConnection) ? new Date(oaDetails.LastConnection) : null, // DateTime
         lastReportDate: (oaDetails.LastReportDate) ? new Date(oaDetails.LastReportDate) : null, // DateTime
@@ -78,7 +79,7 @@ async function UpsertCompany(req, res) {
         }
     }
 
-    let x = await OnAirCompanyRepo.upsertByGuid(oaDetails.Id, newCompany, {
+    let x = await CompanyRepo.upsertByGuid(oaDetails.Id, newCompany, {
         humanize: ['createdAt', 'updatedAt', 'onAirSyncedAt', 'lastConnection', 'lastReportDate', 'creationDate', 'pausedDate', 'lastWeeklyManagementsPaymentDate'],
         serialize: true,
     });

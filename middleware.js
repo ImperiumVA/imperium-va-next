@@ -4,19 +4,20 @@ import { withAuth } from "next-auth/middleware"
 export default withAuth({
   callbacks: {
     authorized({ req, token }) {
+        console.log('withAuth::authorized()', { req, token });
+
       // `/admin` requires admin role
-      if (req.nextUrl.pathname === "/admin") {
-        return token?.userRole === "admin"
+      if (!token.isAdmin) {
+        return false;
       }
-      // `/me` only requires the user to be logged in
-      return !!token
+      
+      return true;
     },
   },
 })
 
 export const config = {
     matcher: [
-        "/dashboard",
         "/admin/:path*",
         "/me",
     ]

@@ -4,16 +4,33 @@ import {
     Badge,
     Button,
     ButtonGroup,
+    Form,
+    InputGroup,
 } from 'react-bootstrap'
 import DeleteButton from 'components/DeleteButton'
-import { FaInfoCircle, FaPencilAlt } from 'react-icons/fa';
+import { FaBan, FaInfoCircle, FaPencilAlt, FaSave } from 'react-icons/fa';
 
-function MenuItemsTable({ data, onDelete, toggleField, ...props }) {
+function MenuItemsTable({ data, onDelete, onEdit, toggleField, ...props }) {
+    const [state, setState] = useState({
+        isEditing: false,
+        isDeleting: false,
+        editing: null,
+        deleting: null,
+    });
+
+    const handleFieldChange = (e) => {
+        e.preventDefault();
+
+        setState({
+            ...state,
+            [e.target.name]: e.target.value,
+        })
+    }
 
     const columns = [
         {
             name: 'Name',
-            cell: (row) => (<a href={`/admin/menus/${row.id}`}>{`${row.name} (${row.slug})`}</a>),
+            cell: (row) => (<a href={`/admin/menus/${row.id}`}>{`${row.name} (${row.slug})`}</a>)
         },
         {
             name: 'Auth Required?',

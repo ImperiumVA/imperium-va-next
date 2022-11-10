@@ -100,7 +100,7 @@ export class BaseRepo {
         return await this.Model.create(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     async update(id, x, opts) {
@@ -121,7 +121,7 @@ export class BaseRepo {
         return await this.Model.update(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     async findAll(opts) {
@@ -136,7 +136,7 @@ export class BaseRepo {
         return this.Model.findMany(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     async findById(id, opts) {
@@ -154,7 +154,7 @@ export class BaseRepo {
         return this.Model.findUnique(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
     async destroy(id, opts) {
@@ -172,7 +172,7 @@ export class BaseRepo {
         return await this.Model.delete(query)
             .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
             .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
-            .then((x) => (opts?.serialize) ? self.serialize(x) : x)
+            .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 }
 
