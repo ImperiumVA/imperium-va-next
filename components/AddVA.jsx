@@ -85,7 +85,7 @@ function AddVA({ doCreate, ...props}) {
                 })
             })
         }
-    }, [vaId, apiKey])
+    }, [vaId, apiKey, name.length, state])
 
     return (
         <div id="AddVirtualAirline">

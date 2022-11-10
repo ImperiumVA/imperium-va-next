@@ -24,7 +24,7 @@ function AddMenu({ doCreate, ...props}) {
                 <Modal.Title>Add New Menu</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Woohoo, you're reading this text in a modal!
+                Woohoo, you`&apos;re reading this text in a modal!
             </Modal.Body>
             <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
