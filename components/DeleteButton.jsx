@@ -3,8 +3,9 @@ import {
     Button,
 } from 'react-bootstrap'
 import { FaTrash } from 'react-icons/fa';
+import ClipLoader from "react-spinners/ClipLoader";
 
-function DeleteButton ({ onClick, id, disabled, }) {
+function DeleteButton ({ onClick, id, variant, disabled, }) {
     const [isDeleting, setIsDeleting] = useState(false)
 
     const _onClick = async (e) => {
@@ -16,12 +17,15 @@ function DeleteButton ({ onClick, id, disabled, }) {
 
     return (<Button
         size='md'
-        variant='danger'
+        variant={variant || 'danger'}
         onClick={_onClick}
         disabled={isDeleting || disabled}
     >
         {(isDeleting) 
-         ? 'Deleting...'
+         ? (<span>
+            <ClipLoader color="#f81d1d" size={12} />
+            &nbsp;Deleting...
+        </span>)
          : (<FaTrash />)
         }
     </Button>)

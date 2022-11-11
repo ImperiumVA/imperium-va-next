@@ -1,49 +1,45 @@
+import { apiHandler, omit } from 'helpers/api'
+import { VirtualAirlineRepo, } from 'repos'
+import { OnAirService } from 'helpers/onair'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 import { unstable_getServerSession } from "next-auth/next"
-import { apiHandler, omit, slugify } from 'helpers/api'
-import { VirtualAirlineRepo } from 'repos'
-import { OnAirService } from 'helpers/onair'
-import { AccountRepo } from 'repos'
 
 export default apiHandler({
-    post: Create,
+    put: RefreshOnAirDetails,
 });
 
-
-async function Create(req, res) {
+async function RefreshOnAirDetails(req, res) {
     const { user } = await unstable_getServerSession(req, res, authOptions)
     if (!user) {
         return res.status(401).json({ message: "You must be logged in." });
     }
 
-    const account = await AccountRepo.findById(user.accountId);
-    
-    if (!account) {
-        return res.status(401).json({ message: "Account not found." });
-    }
-
-    if (!req.body) throw 'No body';
-
     const {
         vaId,
-        apiKey,
-    } = JSON.parse(req.body);
+    } = JSON.parse(req.body)
+    
+    if (!vaId) throw 'OnAir VA ID is required'
 
-    console.log({
-        vaId,
-        apiKey
+    const va = await VirtualAirlineRepo.findById(vaId, {
+        include: {
+            owner: true,
+        },
+    });
+    if (!va) throw 'VA not found'
+
+    if (va.ownerId !== user.accountId) {
+        return res.status(401).json({ message: "You are not the owner of this VA." });
+    }
+
+    let oaDetails = await OnAirService.queryVADetails({
+        apiKey: va.apiKey,
+        vaId: va.guid,
     })
 
-    if (!vaId) throw 'VA ID is required'
-    if (!apiKey) throw 'API Key is required'
-
-    const oaDetails = await OnAirService.queryVADetails({ apiKey, vaId, })
-
-    let x = await VirtualAirlineRepo.create({
+    if (!oaDetails) return res.status(400).json({ message: 'OnAir VA Details not found', });
+    let x = await VirtualAirlineRepo.update(va.id, {
         name: oaDetails.Name,
         airlineCode: oaDetails.AirlineCode,
-        guid: oaDetails.Id,
-        apiKey: apiKey,
         initalOwnerEquity: oaDetails.InitalOwnerEquity,
         percentDividendsToDistribute: oaDetails.PercentDividendsToDistribute,
         lastDividendsDistribution: (oaDetails.LastDividendsDistribution) ? new Date(oaDetails.LastDividendsDistribution) : null,
@@ -81,12 +77,8 @@ async function Create(req, res) {
         disableSeatsConfigCheck: oaDetails.DisableSeatsConfigCheck,
         realisticSimProcedures: oaDetails.RealisticSimProcedures,
         travelTokens: oaDetails.TravelTokens,
-        owner: {
-            connect: {
-                id: account.id
-            }
-        }
+        onAirSyncedAt: new Date(),
     });
 
-    return res.status(201).json(x);
+    return res.status(200).json(x)
 }

@@ -18,6 +18,9 @@ export const VirtualAirlineService = {
     create,
     getOnAirVADetails,
     refreshVADetails,
+    refresh: refreshVADetails,
+    inviteMember,
+    removeMember,
 };
 
 async function getAll() {
@@ -62,7 +65,22 @@ async function getOnAirVADetails(payload) {
     return x;
 }
 
-async function refreshVADetails(ownerId) {
-    if (!ownerId) throw new Error('ownerId is required');
-    return await fetchWrapper.put(`${baseUrl}/refreshVADetails`, { ownerId });
+async function refreshVADetails(vaId) {
+    if (!vaId) throw new Error('vaId is required');
+    return await fetchWrapper.put(`${baseUrl}/refreshDetails`, { vaId });
+}
+
+async function changeOwner({ vaId, companyId }) {
+    if (!vaId) throw new Error('VA ID is required');
+    if (!companyId) throw new Error('Company ID is required');
+
+    return await fetchWrapper.put(`${baseUrl}/changeOwner`, { vaId, companyId });
+}
+
+async function inviteMember(payload) {
+    return await fetchWrapper.put(`${baseUrl}/inviteMember`, payload);
+}
+
+async function removeMember(payload) {
+    return await fetchWrapper.put(`${baseUrl}/removeMember`, payload);
 }

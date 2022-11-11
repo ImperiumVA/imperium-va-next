@@ -36,7 +36,9 @@ export const authOptions = {
             let Account = await AccountRepo.findByDiscordId(user.id);
 
             if (Account) {
+                console.log(`Account '${Account.username}' found, determining if allowed to sign in...`);
                 if (Account.isEnabled) {
+                    console.log(`Account '${Account.username}' is enabled, allowing sign in.`);
                     user.account = Account;
                     user.accountId = Account.id;
                     user.isAdmin = Account.isAdmin;
@@ -44,9 +46,11 @@ export const authOptions = {
 
                     return true;
                 } else {
+                    console.log(`Account '${Account.username}' is disabled, denying sign in.`);
                     return '/account-disabled';
                 }
             } else {
+                console.log(`Account '${user.name}' not found, creating account...`);
                 Account = await AccountRepo.create({
                     discordId: profile.id,
                     username: profile.username,
@@ -55,11 +59,13 @@ export const authOptions = {
                     locale: profile.locale,
                     verified: profile.verified,
                     isAdmin: false,
-                    isEnabled: false
+                    isEnabled: false,
                 });
-            }
+                // @todo: if the account was created, send an email to the admin to approve the account
+                console.log(`Account '${Account.username}' created, denying sign in.`);
 
-            return false;
+                return '/account-disabled';
+            }
         
         },
         async session({ session, token }) {
@@ -67,6 +73,7 @@ export const authOptions = {
             session.user.id = token.sub;
 
             const Account = await AccountRepo.findByDiscordId(session.user.id);
+
             // console.log('Session() Account:', Account);
 
             if (Account) {
@@ -84,6 +91,7 @@ export const authOptions = {
             }
 
             const Account = await AccountRepo.findByDiscordId(token.sub);
+
             token.isAdmin = (Account) ? Account.isAdmin : false;
             token.accountId = (Account) ? Account.id : null;
             
@@ -95,7 +103,7 @@ export const authOptions = {
             // Allows callback URLs on the same origin
             else if (new URL(url).origin === baseUrl) return url
             return baseUrl
-          }
+        }
     },
     pages: {
         signIn: '/auth/signin',

@@ -52,14 +52,14 @@ const SeedData = {
                     adminOnly: false,
                 },
                 {
-                    slug: 'onair',
-                    name: 'OnAir',
-                    href: '/onair',
-                    label: 'OnAir',
+                    slug: 'va',
+                    name: 'VA',
+                    href: '/va',
+                    label: 'VA',
                     isAuthRequired: true,
-                    isDisabled: true,
+                    isDisabled: false,
                     adminOnly: false,
-                },
+                }
             ]
         },
         {

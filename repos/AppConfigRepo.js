@@ -1,6 +1,6 @@
 import BaseRepo from './BaseRepo'
 
-class AppConfigRepo extends BaseRepo {
+class AppConfigRepoClass extends BaseRepo {
     constructor() {
         super('appConfig')
         this.getFirst = this.getFirst.bind(this)
@@ -20,4 +20,5 @@ class AppConfigRepo extends BaseRepo {
     }
 }
 
-export default new AppConfigRepo();
+export const AppConfigRepo = new AppConfigRepoClass();
+export default AppConfigRepo;

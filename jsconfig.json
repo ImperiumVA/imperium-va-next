@@ -11,7 +11,8 @@
           "services": ["services/*"],
           "reducers": ["reducers/reducer.js", "reducers/*"],
           "helpers": ["helpers/*"],
-          "repos": ["repos/*"]
+          "repos": ["repos/*"],
+          "views": ["views/*"],
         },
     }
 }

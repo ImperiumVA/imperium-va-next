@@ -38,6 +38,7 @@ export async function getServerSideProps(ctx) {
         serialize: true,
         include: {
             owner: true,
+            virtualAirline: true,
         },
         humanize: [
             'createdAt', 
@@ -72,6 +73,7 @@ function Me({
 }) {
     const [isSyncing, setIsSyncing] = useState(false);
     const router = useRouter();
+    
     const upsertOnAir = async (values) => {
         if (!user) {
             console.log('no user');

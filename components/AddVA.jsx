@@ -7,9 +7,11 @@ import {
     Form,
     FloatingLabel,
 } from 'react-bootstrap'
-import { CompanyService } from 'services';
+import { AlertService } from 'services';
+import { VirtualAirlineService } from 'services';
+import ClipLoader from "react-spinners/ClipLoader";
 
-function AddVA({ doCreate, ...props}) {
+function AddVA({ doCreate, disabled, ...props}) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -22,6 +24,7 @@ function AddVA({ doCreate, ...props}) {
         icao: '',
         isValid: false,
         isLoading: false,
+        isSubmitting: false,
     });
 
     const {
@@ -32,14 +35,28 @@ function AddVA({ doCreate, ...props}) {
         icao,
         isValid,
         isLoading,
+        isSubmitting,
     } = state;
 
     const _doCreate = async (e) => {
         e.preventDefault();
+        setState({ ...state, isSubmitting: true });
 
-        doCreate({
+        await doCreate({
             vaId,
             apiKey
+        })
+        .then((res) => {
+            setState({ ...state, isSubmitting: false });
+
+            handleClose();
+            if (res) {
+                AlertService.success('Virtual Airline added successfully.');
+            }
+        })
+        .catch((err) => {
+            setState({ ...state, isSubmitting: false });
+            AlertService.error('Error adding Virtual Airline, consult with the administrator in Discord.');
         })
     }
 
@@ -52,44 +69,41 @@ function AddVA({ doCreate, ...props}) {
         })
     }
 
+    const queryOnAir = async (e) => {
+        e.preventDefault();
+        setState({
+            ...state,
+            isLoading: true,
+        })
 
-    useEffect(() => {
-        if ((vaId.length === 36 && apiKey.length === 36) && name.length <= 0) {
-
+        await VirtualAirlineService.getOnAirVADetails({
+            vaId: vaId,
+            apiKey: apiKey,
+        })
+        .then((res) => {
             setState({
                 ...state,
-                isLoading: true,
+                isValid: true,
+                name: res.Name,
+                level: res.Level,
+                icao: res.AirlineCode,
+                isLoading: false,
             })
-
-            CompanyService.getOnAirCompanyDetails({
-                companyId: vaId,
-                apiKey: apiKey,
+        })
+        .catch((err) => {
+            console.log('err', err);
+            setState({
+                ...state,
+                isValid: false,
+                isLoading: false,
             })
-            .then((res) => {
-                console.log('res', res);
-                setState({
-                    ...state,
-                    isValid: true,
-                    name: res.Name,
-                    level: res.Level,
-                    icao: res.AirlineCode,
-                    isLoading: false,
-                })
-            })
-            .catch((err) => {
-                console.log('err', err);
-                setState({
-                    ...state,
-                    isValid: false,
-                    isLoading: false,
-                })
-            })
-        }
-    }, [vaId, apiKey, name.length, state])
+        })
+        
+    }
 
     return (
         <div id="AddVirtualAirline">
-        <Button variant="primary" onClick={handleShow}>
+        <Button variant="primary" onClick={handleShow} disabled={disabled}>
             Add Virtual Airline
         </Button>
 
@@ -129,6 +143,21 @@ function AddVA({ doCreate, ...props}) {
                         </Form.Group>
                     </Col>
                 </Row>
+                <Row className='mb-3'>
+                    <Col>
+                        <div className="d-grid gap-2">
+                            <Button variant="primary" onClick={queryOnAir}>
+                                {(isLoading)
+                                    ? (<span>
+                                        <ClipLoader color="#36d7b7" size={12} />
+                                        &nbsp;Loading...
+                                    </span>)
+                                    : 'Query OnAir'
+                                }
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
                 <Row>
                     <Col md={4}>
                         <Form.Group>
@@ -166,8 +195,14 @@ function AddVA({ doCreate, ...props}) {
             <Button variant="secondary" onClick={handleClose}>
                 Close
             </Button>
-            <Button variant="primary" onClick={_doCreate} disabled={(isLoading === true || isValid !== true)}>
-                Create
+            <Button variant="primary" onClick={_doCreate} disabled={disabled || (isSubmitting === true || isLoading === true || isValid === false)}>
+            {(isSubmitting)
+                ? (<span>
+                    <ClipLoader color="#36d7b7" size={12} />
+                    &nbsp;Saving...
+                </span>)
+                : 'Create'
+            }
             </Button>
             </Modal.Footer>
         </Modal>

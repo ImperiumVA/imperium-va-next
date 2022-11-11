@@ -124,6 +124,6 @@ export default function Alerts({ id, fade }) {
     if (!alerts.length) return null;
 
     return (<div id='AlertsContainer'>
-        {alerts.map((alert, k) =>(<Alert key={k} {...alert} />))}
+        {alerts.map((alert, k) =>(<Alert id={`alert-${k}`} key={k} {...alert} />))}
     </div>)
 }

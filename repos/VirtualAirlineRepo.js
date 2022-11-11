@@ -1,12 +1,13 @@
 import BaseRepo from './BaseRepo'
 
-class VirtualAirlineRepo extends BaseRepo {
+class VirtualAirlineRepoClass extends BaseRepo {
     constructor() {
         super('virtualAirline')
         this.upsert = this.upsert.bind(this)
         this.upsertByGuid = this.upsertByGuid.bind(this)
         this.findByOwnerId = this.findByOwnerId.bind(this)
-        this.getFirst = this.getFirst(this)
+        this.getFirst = this.getFirst.bind(this)
+        this.determineCanSync = this.determineCanSync.bind(this)
     }
 
     async findByOwnerId(ownerId, opts) {
@@ -98,6 +99,30 @@ class VirtualAirlineRepo extends BaseRepo {
         .then((x) => (x && opts?.serialize) ? self.serialize(x) : x)
     }
 
+    determineCanSync (x) {
+        if (!x) return null;
+        let canSync = false;
+    
+        // if onAirSyncedAt is not null
+        if (x.onAirSyncedAt) {
+            const currentDate = new Date()
+            const onAirSyncedAt = new Date(x.onAirSyncedAt)
+            const ONE_MIN = 1*60*1000
+    
+            // if the difference between the current date and the onAirSyncedAt date is greater than 1 minute
+            if ((currentDate - onAirSyncedAt) > ONE_MIN) {
+                canSync = true
+            }
+        } else {
+            canSync = true
+        }
+    
+        return {
+            ...x,
+            canSync,
+        }
+    }
+
     async getFirst(q, opts) {
         const self = this;
         const query = {
@@ -110,9 +135,23 @@ class VirtualAirlineRepo extends BaseRepo {
             include: (opts?.include) ? opts.include : undefined,
         }
 
-        const x = await this.Model.findFirst(query)
-        return x
+        return await this.Model.findFirst(query)
+        .then((x) => (x) ? self.determineCanSync(x) : x)
+        .then((x) => (x && opts?.omit) ? self.omit(x, opts.omit) : x)
+        .then((x) => (x && opts?.humanize) ? self.humanize(x, opts.humanize) : x)
+        .then((x) => {
+            if (x && opts?.serialize) {
+                x.lastDividendsDistribution = x.lastDividendsDistribution.toString();
+                x.createdAt = x.createdAt.toString()
+                x.updatedAt = x.updatedAt.toString()
+                return JSON.parse(JSON.stringify(x));
+            } else {
+                return x
+            }
+        })
     }
+
 }
 
-export default new VirtualAirlineRepo();
+export const VirtualAirlineRepo = new VirtualAirlineRepoClass();
+export default VirtualAirlineRepo;

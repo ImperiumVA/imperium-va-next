@@ -1,6 +1,6 @@
 import BaseRepo from './BaseRepo'
 
-class AccountRepo extends BaseRepo {
+class AccountRepoClass extends BaseRepo {
     constructor() {
         super('account')
 
@@ -84,4 +84,5 @@ class AccountRepo extends BaseRepo {
 
 }
 
-export default new AccountRepo();
+export const AccountRepo = new AccountRepoClass();
+export default AccountRepo;

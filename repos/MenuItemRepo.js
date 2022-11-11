@@ -1,6 +1,6 @@
 import BaseRepo from './BaseRepo'
 
-class MenuItem extends BaseRepo {
+class MenuItemClass extends BaseRepo {
     constructor() {
         super('menuItem')
         this.findBySlug = this.findBySlug.bind(this)
@@ -35,4 +35,5 @@ class MenuItem extends BaseRepo {
     }
 }
 
-export default new MenuItem();
+export const MenuItemRepo = new MenuItemClass()
+export default MenuItemRepo;

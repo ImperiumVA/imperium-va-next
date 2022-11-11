@@ -1,6 +1,6 @@
 import BaseRepo from './BaseRepo'
 
-class CompanyRepo extends BaseRepo {
+class CompanyRepoClass extends BaseRepo {
     constructor() {
         super('company')
         this.upsert = this.upsert.bind(this)
@@ -98,4 +98,5 @@ class CompanyRepo extends BaseRepo {
     }
 }
 
-export default new CompanyRepo();
+export const CompanyRepo = new CompanyRepoClass();
+export default CompanyRepo;

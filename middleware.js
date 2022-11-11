@@ -6,12 +6,16 @@ export default withAuth({
     authorized({ req, token }) {
         console.log('withAuth::authorized()', { req, token });
 
-      // `/admin` requires admin role
-      if (!token.isAdmin) {
-        return false;
-      }
+        if (!token) {
+            return false;
+        }
+
+        // `/admin` requires admin role
+        if (!token.isAdmin) {
+            return false;
+        }
       
-      return true;
+        return true;
     },
   },
 })
@@ -19,6 +23,5 @@ export default withAuth({
 export const config = {
     matcher: [
         "/admin/:path*",
-        "/me",
     ]
 }
