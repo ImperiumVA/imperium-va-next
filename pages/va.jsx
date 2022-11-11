@@ -248,7 +248,7 @@ function VA({ menus, va, isOwner, companies, availableMembers, ...props }) {
                             {(isRefreshing)
                                 ? (<span>
                                     <ClipLoader color="#36d7b7" size={12} />
-                                    &nbsp;'Refreshing...'
+                                    &nbsp;Refreshing...
                                 </span>)
                                 : (va.canSync === true)
                                     ? 'Request Manual Sync'
