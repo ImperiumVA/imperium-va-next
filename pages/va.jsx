@@ -17,7 +17,17 @@ import Debugger from 'components/Debugger'
 import ClipLoader from 'react-spinners/ClipLoader';
 
 export async function getServerSideProps(ctx) {
-    const { user } = await unstable_getServerSession(ctx.req, ctx.res, authOptions)
+    const session = await unstable_getServerSession(ctx.req, ctx.res, authOptions)
+
+    if (!session) {
+        return {
+            redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+    const { user } = session
 
     const menus = await MenuRepo.findEnabled({
         serialize: true,
@@ -65,7 +75,7 @@ export async function getServerSideProps(ctx) {
             va,
             companies,
             isOwner: (va && va.owner.id === user.accountId),
-            availableMembers: companies.filter((c) => c.virtualAirlineId !== va.id),
+            availableMembers: (va && companies) ? companies.filter((c) => c.virtualAirlineId !== va.id) : null,
         },
     }   
 }
