@@ -2,6 +2,7 @@ import prisma from "db"
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
 import AccountRepo from "repos/AccountRepo"
+import Redis from '@redis'
 
 export const authOptions = {
     // Configure one or more authentication providers
@@ -61,9 +62,14 @@ export const authOptions = {
                     isAdmin: false,
                     isEnabled: false,
                 });
-                // @todo: if the account was created, send an email to the admin to approve the account
-                console.log(`Account '${Account.username}' created, denying sign in.`);
 
+                    if (Account) {
+                        const approvalUrl = `${process.env.NEXTAUTH_URL}/api/auth/approve-account?accountId=${Account.id}`;
+                        console.log(`Account '${Account.username}' created, denying sign in.`);
+                        // @todo: if the account was created, send an email to the admin to approve the account
+                        // await Publisher.connect();
+                        Redis.publish('auth-signup', `**New Account '${Account.username}' Signup**\nLogin is disabled until approved by an Administrator.\nApprove by visiting:\n${approvalUrl}`);
+                    }
                 return '/account-disabled';
             }
         

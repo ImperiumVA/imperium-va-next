@@ -3,6 +3,7 @@
         "baseUrl": ".",
         "paths": {
           "@db": ["db.js"],
+          "@redis": ["redis.js"],
           "components/*": ["components/*"],
           "pages/*": ["pages/*"],
           "utils/*": ["utils/*"],

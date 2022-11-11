@@ -7,12 +7,12 @@ export default withAuth({
         console.log('withAuth::authorized()', { req, token });
 
         if (!token) {
-            return false;
+            return '/auth/signin';
         }
 
         // `/admin` requires admin role
         if (!token.isAdmin) {
-            return false;
+            return '/auth/signin';
         }
       
         return true;
@@ -23,5 +23,6 @@ export default withAuth({
 export const config = {
     matcher: [
         "/admin/:path*",
+        "/api/auth/approve-account",
     ]
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import Prisma from '@db'
 import moment from 'moment'   
 
 function _humanize(date) {
@@ -10,14 +10,10 @@ function _humanize(date) {
 
 export class BaseRepo {
     Model;
-    prisma = undefined;
+    prisma = Prisma;
 
     constructor(model) {
         if (!model) throw new Error('No model name provided');
-        
-        if (!this.prisma) {
-            this.prisma = new PrismaClient();
-        }
 
         this.Model = this.prisma[model];
         this.create = this.create.bind(this);

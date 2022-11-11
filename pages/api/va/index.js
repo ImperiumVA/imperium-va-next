@@ -81,6 +81,7 @@ async function Create(req, res) {
         disableSeatsConfigCheck: oaDetails.DisableSeatsConfigCheck,
         realisticSimProcedures: oaDetails.RealisticSimProcedures,
         travelTokens: oaDetails.TravelTokens,
+        onAirSyncedAt: new Date(),
         owner: {
             connect: {
                 id: account.id

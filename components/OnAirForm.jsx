@@ -3,6 +3,7 @@ import { Row, Col, Form, Button, FloatingLabel, ButtonGroup, FormControl } from 
 import * as Yup from 'yup'
 import classNames from 'classnames'
 import { CompanyService } from 'services'
+import ClipLoader from "react-spinners/ClipLoader";
 
 
 
@@ -225,7 +226,13 @@ export function OnAirForm({ doSubmit, }) {
                 onClick={loadOnAirCompanyDetails}
                 disabled={(isLoading || (!apiKey || !companyId))}
               >
-                Load OnAir Company Details
+                {(isLoading)
+                ? (<span>
+                    <ClipLoader color="#36d7b7" size={12} />
+                    &nbsp;Loading...
+                </span>)
+                : 'Load OnAir Company Details'
+                }
               </Button>
           </Col>
         </Row>

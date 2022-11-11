@@ -302,7 +302,7 @@ function VA({ menus, va, isOwner, companies, availableMembers, ...props }) {
                                                     variant='success'
                                                     disabled={(!isOwner)}
                                                 >
-                                                    <FaKey />
+                                                    <FaKey />&nbsp;Make VA Owner
                                                 </Button>
                                             </ButtonGroup>
                                         </td>
@@ -341,7 +341,6 @@ function VA({ menus, va, isOwner, companies, availableMembers, ...props }) {
                         <Col>
                             <AddVA
                                 doCreate={doCreate}
-                                disabled={(!isOwner)}
                             />
                         </Col>
                     </Row>
