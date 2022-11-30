@@ -2,7 +2,8 @@ import prisma from "db"
 import NextAuth from "next-auth"
 import DiscordProvider from "next-auth/providers/discord"
 import AccountRepo from "repos/AccountRepo"
-import Redis from '@redis'
+import { EventService, } from "services/EventService"
+import { TokenService, } from "services/TokenService"
 
 export const authOptions = {
     // Configure one or more authentication providers
@@ -10,7 +11,7 @@ export const authOptions = {
         DiscordProvider({
             clientId: process.env.DISCORD_CLIENT_ID,
             clientSecret: process.env.DISCORD_CLIENT_SECRET,
-            authorization: { params: { scope: 'identify email guilds' } },
+            authorization: { params: { scope: 'identify email guilds bot messages.read' } },
             token: "https://discord.com/api/oauth2/token",
             userinfo: "https://discord.com/api/users/@me", 
             async profile(profile) {
@@ -45,6 +46,8 @@ export const authOptions = {
                     user.isAdmin = Account.isAdmin;
                     user.image_url = profile.image_url;
 
+                    EventService.emit('auth-signin', `**@${Account.username}#${Account.discriminator}** has just signed into the VA website\n`);
+
                     return true;
                 } else {
                     console.log(`Account '${Account.username}' is disabled, denying sign in.`);
@@ -52,6 +55,12 @@ export const authOptions = {
                 }
             } else {
                 console.log(`Account '${user.name}' not found, creating account...`);
+                const approvalToken = await TokenService.sign({
+                    username: profile.username,
+                    discriminator: profile.discriminator,
+                    discordId: profile.id,
+                })
+
                 Account = await AccountRepo.create({
                     discordId: profile.id,
                     username: profile.username,
@@ -61,14 +70,20 @@ export const authOptions = {
                     verified: profile.verified,
                     isAdmin: false,
                     isEnabled: false,
+                    approvalToken: approvalToken
                 });
 
                     if (Account) {
-                        const approvalUrl = `${process.env.NEXTAUTH_URL}/api/auth/approve-account?accountId=${Account.id}`;
                         console.log(`Account '${Account.username}' created, denying sign in.`);
                         // @todo: if the account was created, send an email to the admin to approve the account
                         // await Publisher.connect();
-                        Redis.publish('auth-signup', `**New Account '${Account.username}' Signup**\nLogin is disabled until approved by an Administrator.\nApprove by visiting:\n${approvalUrl}`);
+                        const approvalUrl = `${process.env.NEXTAUTH_URL}/api/auth/approve-account?token=${Account.approvalToken}`;
+                        
+                        EventService.emit('auth-signup', {
+                            approvalUrl: approvalUrl,
+                            username: Account.username,
+                            discriminator: Account.discriminator,
+                        });
                     }
                 return '/account-disabled';
             }

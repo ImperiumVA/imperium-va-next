@@ -1,7 +1,7 @@
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 import { unstable_getServerSession } from "next-auth/next"
 import { apiHandler, omit, slugify } from 'helpers/api'
-import Redis from '@redis';
+import { EventService, } from "services/EventService"
 
 export default apiHandler({
     post: SendMessage,
@@ -17,7 +17,7 @@ async function SendMessage(req, res) {
     if (!message) throw 'Message is required'
 
     
-    Redis.publish(channelName || 'discord', message);
+    EventService.emit(channelName || 'discord', message);
     console.log(`Published '${message}' to ${channelName || 'discord'}`);
     // await EventService.publish('discord', 'test');
 

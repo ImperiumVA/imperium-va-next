@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@prisma/client": "^4.6.1",
+    "@socket.io/redis-adapter": "^7.2.0",
+    "@socket.io/redis-emitter": "^5.0.0",
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^5.2.2",
     "bootswatch": "^5.2.2",
     "classnames": "^2.3.2",
@@ -35,8 +38,11 @@
     "react-icons": "^4.6.0",
     "react-spinners": "^0.13.6",
     "react-table": "^7.8.0",
+    "redis": "^4.5.1",
     "rxjs": "^7.5.7",
     "sass": "^1.56.0",
+    "socket.io": "^4.5.3",
+    "socket.io-client": "^4.5.4",
     "yup": "^0.32.11"
   },
   "devDependencies": {

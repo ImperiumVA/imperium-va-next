@@ -1,54 +1,75 @@
-import { createClient } from 'redis';
+import Redis from 'ioredis'
 
 export class EventServiceClass {
-    Client = undefined;
-    Subscriber = undefined;
-    Publisher = undefined;
-    Connected = false;
-    
-    constructor() {
-        this.subscribe = this.subscribe.bind(this);
-        this.publish = this.publish.bind(this);
-        this.unsubscribe = this.unsubscribe.bind(this);
+    publisher = undefined;
+    subscriber = undefined;
+    cfg = {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379,
+        db: process.env.REDIS_DATABASE || "0",
+        password: process.env.REDIS_PASSWORD || '',
+    };
+
+    constructor(cfg) {
+        if (cfg) {
+            this.cfg = cfg;
+        }
+
         this.initialize = this.initialize.bind(this);
+        this.subscribe = this.subscribe.bind(this);
+        this.emit = this.emit.bind(this);
+
+        this.initialize();
     }
 
-    subscribe(channel, callback) {
-        this.Subscriber.subscribe(channel, callback);
+    initialize() {
+        if (this.publisher) return;
+
+        this.publisher = new Redis({
+            host: this.cfg.host,
+            port: (typeof this.cfg.port !== Number) ? Number(this.cfg.port) : this.cfg.port,
+            db: this.cfg.db,
+            password: this.cfg.password,
+        });
+
+        if (this.subscriber) return;
+
+        this.subscriber = new Redis({
+            host: this.cfg.host,
+            port: (typeof this.cfg.port !== Number) ? Number(this.cfg.port) : this.cfg.port,
+            db: this.cfg.db,
+            password: this.cfg.password,
+        });
     }
 
-    publish(channel, message) {
-        this.Publisher.publish(channel, message);
-    }
+    subscribe = async (channel) => {
+        const self = this;
+        return new Promise((resolve, reject) => {
+            
+            if (!channel) return reject('Channel name is required');
+            Logger.info(`EventService: Subscribing to channel '${channel}'`);
 
-    async unsubscribe(channel) {
-        await this.Publisher.unsubscribe(channel);
-    }
+            self.subscriber.subscribe(channel, (err, count) => {
+                if (err) {
+                    Logger.error(`EventService: Error subscribing to channel '${channel}': ${err}`);
+                    return reject(err);
+                }
 
-    async initialize() {
-        if (!this.Client) {
-            this.Client = createClient({
-                host: process.env.REDIS_HOST,
-                port: Number(process.env.REDIS_PORT),
-                password: process.env.REDIS_PASSWORD,
+                Logger.info(`EventService: Subscribed to channel '${channel}', ${count} total subscribed`);
+                return resolve(null, count);
             });
+        });
+    }
 
-            this.Subscriber = this.Client.duplicate();
-            this.Publisher = this.Client.duplicate();
-        }
-    
-        if (this.Connected !== true) {
-            await this.Subscriber.connect();
-            await this.Publisher.connect();
-        }
+    emit = (channel, data) => {
+        if (!channel) return false;
+        data = (typeof data !== 'string') ? JSON.stringify(data) : data;
 
-        this.Connected = true;
+        console.log(`Publishing message to '${channel}' channel`, data)
+
+        this.publisher.publish(channel, data);
     }
 }
 
-const EventService = new EventServiceClass();
-
-export default async function publish(channel, message) {
-    await EventService.initialize();
-    EventService.publish(channel, message);
-};
+export const EventService = new EventServiceClass();
+export default EventService;
